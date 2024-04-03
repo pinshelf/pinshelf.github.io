@@ -1,0 +1,15 @@
+# Defaults
+node_modules
+build
+dist
+
+# package-lock.json and pnpm-lock.yaml
+**/*-lock.*
+
+# Markdown files
+**/*.md
+
+# Svelte
+.svelte-kit
+
+!.prettierignore
