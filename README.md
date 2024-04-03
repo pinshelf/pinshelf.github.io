@@ -15,4 +15,4 @@ Deployment notes: [Deployment](./docs/DEPLOYMENT.md)
 
 ## How to add shadcn-ui components
 1.  Make sure to be in `apps/ui` (else `cd apps/ui`)
-2.  `pnpx shadcn-svelte@latest add <component_name>`
+2.  `pnpm dlx shadcn-svelte@latest add <component_name>`

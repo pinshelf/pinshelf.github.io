@@ -25,7 +25,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"bits-ui": "^0.21.2",
 		"clsx": "^2.1.0",
+		"radix-icons-svelte": "^1.2.1",
+		"svelte-radix": "^1.1.0",
 		"tailwind-merge": "^2.2.2",
 		"tailwind-variants": "^0.2.1"
 	}
