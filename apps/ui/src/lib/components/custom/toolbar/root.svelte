@@ -23,8 +23,9 @@
 
             rounded-md sm:rounded-none
             border-[0.5px] sm:border-x-0 sm:border-t-0 sm:border-b-[0.5px] 
-            border-zinc-50 dark:border-zinc-800/50
-            shadow dark:shadow-[0_0.3px_3px_0px_rgba(63,63,70,0.1)]
+            border-zinc-50 dark:border-zinc-700/50
+            shadow
+            dark:shadow-[0_0.5px_2px_1px_rgba(63,63,70,0.3)]
         "
     >
         <!-- Left -->
