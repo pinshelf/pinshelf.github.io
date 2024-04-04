@@ -6,7 +6,9 @@
     import * as Select from "$lib/components/ui/select";
 
     import { page } from '$app/stores';
-    import { HamburgerMenu } from 'radix-icons-svelte';
+    import { Gear, HamburgerMenu, Pencil2 } from 'radix-icons-svelte';
+    import { ModeToggle } from '$lib/components/custom/mode-toggle';
+    import Indicator from './indicator.svelte'
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -67,38 +69,48 @@
 
 <!-- HTML ------------------------------------------------------------------ -->
 
-<!-- Profiles -->
-<DropdownMenu.Root
-    open={menuOpen}
-    onOpenChange={(isOpen) => menuOpen = isOpen}
->
+<!--
+    Dropdown:
+    On large screens the dropdown only contains profile related elements.
+    On medium screens the dropdown becomes a hamburger menu and also takes
+    the navigation buttons.
+    On small screens the quick-action buttons also move to the dropdown.
+-->
+<DropdownMenu.Root bind:open={menuOpen}>
+    <!-- Dropdown Trigger -->
     <DropdownMenu.Trigger asChild let:builder>
-        <Button builders={[builder]} variant="outline" class="relative p-2.5 xl:px-4 xl:py-2">
-            <span class="hidden xl:block">{ activeProfile ? activeProfile.name : 'Profile'}</span>
+        <Button
+            builders={[builder]}
+            variant="outline"
+            class="relative p-2.5 xl:px-4 xl:py-2"
+        >
+            <!-- Text (>= xl) -->
+            <span
+                class="hidden xl:block max-w-28 truncate"
+            >
+                { activeProfile ? activeProfile.name : 'Profile'}
+            </span>
+
+            <!-- Hamburger Icon (< xl) -->
             <HamburgerMenu class="p-0 xl:hidden"/>
 
             <!-- Indicator -->
-            {#if selectProfileIndicator && menuOpen === false}
-                <span class="absolute right-[2px] translate-x-1/2 top-[2px] -translate-y-1/2 flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                </span>
-            {/if}
+            <Indicator show={selectProfileIndicator && menuOpen === false} />
         </Button>
-
-        <!-- <Button builders={[builder]} variant="outline" class="p-2.5 xl:hidden !m-0 relative">
-            {#if selectProfileIndicator && menuOpen === false}
-                <span class="absolute right-[2px] translate-x-1/2 top-[2px] -translate-y-1/2 flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                </span>
-            {/if}
-        </Button> -->
     </DropdownMenu.Trigger>
-    <DropdownMenu.Content class="min-w-64">
+
+    <!-- Dropdown Content -->
+    <DropdownMenu.Content
+        class="
+            min-w-64
+            -translate-y-4 sm:translate-y-0
+            translate-x-[3px] sm:translate-x-0
+        "
+    >
+        <!-- Profile Sectino -->
         <DropdownMenu.Label>Profile</DropdownMenu.Label>
 
-        <!-- Profile selector -->
+        <!-- Profile selector (wrapped in div for padding) -->
         <div class="px-2 py-1.5">
             <Select.Root
                 disabled={profiles.length === 0}
@@ -108,7 +120,9 @@
                 }
                 onSelectedChange={(x) => onProfileChange((x as any).value)}
             >
+                <!-- Selector Trigger -->
                 <Select.Trigger class="focus:ring-0">
+                    <!-- Uses current profile name as placeholder if set -->
                     <Select.Value
                         placeholder={activeProfile
                             ? activeProfile.name
@@ -117,6 +131,7 @@
                     />
                 </Select.Trigger>
 
+                <!-- Selector Content -->
                 <Select.Content>
                     {#each profiles as profile}
                         <Select.Item value={profile.id}>
@@ -130,20 +145,15 @@
 
         <!-- Manage profiles button -->
         <div class="px-2 py-1.5">
-            <Button class="w-full relative">
+            <Button class="w-full relative" onclick={() => menuOpen = false}>
                 Manage Profiles
 
                 <!-- Indicator -->
-                {#if createProfileIndicator}
-                    <span class="absolute right-[2px] translate-x-1/2 top-[2px] -translate-y-1/2 flex h-3 w-3">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                    </span>
-                {/if}
+                <Indicator show={createProfileIndicator} />
             </Button>
         </div>
 
-        <!-- Naviation -->
+        <!-- Naviation Buttons (< xl) -->
         {#if !!activeProfile}
             <DropdownMenu.Separator class="xl:hidden"/>
             <DropdownMenu.Label class="xl:hidden">Navigation</DropdownMenu.Label>
@@ -163,9 +173,28 @@
             </DropdownMenu.Item>
         {/if}
 
+        <!-- Icon Buttons -->
+        <DropdownMenu.Separator class="md:hidden" />
+        <DropdownMenu.Label class="md:hidden">Actions</DropdownMenu.Label>
+        <div class="flex items-center justify-around md:hidden p-2">
+            {#if !!activeProfile}
+                <Button variant="outline" size="icon">
+                    <Pencil2/>
+                </Button>
+
+                <Button variant="outline" size="icon">
+                    <Gear/>
+                </Button>
+            {/if}
+
+            <!-- Theme toggle -->
+            <ModeToggle />
+        </div>
+
     </DropdownMenu.Content>
 </DropdownMenu.Root>
 
+<!-- Navigation Buttons (>= xl) -->
 {#if !!activeProfile}
     <!-- Home -->
     <Button
@@ -185,8 +214,6 @@
         Explorer
     </Button>
 {/if}
-
-
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -44,6 +44,9 @@ importers:
       clsx:
         specifier: ^2.1.0
         version: 2.1.0
+      mode-watcher:
+        specifier: ^0.2.1
+        version: 0.2.2(svelte@5.0.0-next.93)
       radix-icons-svelte:
         specifier: ^1.2.1
         version: 1.2.1
@@ -1712,6 +1715,14 @@ packages:
     dependencies:
       minimist: 1.2.8
     dev: true
+
+  /mode-watcher@0.2.2(svelte@5.0.0-next.93):
+    resolution: {integrity: sha512-QjkHQL9pXrr7Vb0P3WbOWAF8mv1Q6jEwUZ5GUyCnI9eEoXH234zuaOGChUF7ZQtjxwtmXDzKFSW/36TvLDg1/A==}
+    peerDependencies:
+      svelte: ^4.0.0
+    dependencies:
+      svelte: 5.0.0-next.93
+    dev: false
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}

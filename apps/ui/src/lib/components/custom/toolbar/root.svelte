@@ -10,23 +10,32 @@
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
+<div class="
+    w-full
+    p-3 sm:p-0
+
+    fixed
+
+    bottom-0 sm:top-0
+">
 <div
     class="
-        bg-white
+        bg-white dark:bg-zinc-900
         w-full
         h-16
         p-2
 
-        flex items-center justify-between
+        flex items-center justify-between space-x-2 md:space-x-0
 
-        border-b-[0.5px]
-        border-zinc-50
-        shadow
+        rounded-md sm:rounded-none
+        border-[0.5px] sm:border-x-0 sm:border-t-0 sm:border-b-[0.5px] 
+        border-zinc-50 dark:border-zinc-800/50
+        shadow dark:shadow-[0_0.3px_3px_0px_rgba(64,64,64,0.1)]
     "
 >
+    <!-- Left -->
     <div
         class="
-            bg-white
             h-full
 
             flex items-center justify-start space-x-2
@@ -35,35 +44,37 @@
         {@render left()}
     </div>
 
+    <!-- Middle -->
     <div
         class="
-            bg-blue-50
             h-12
+            w-full md:w-[62%] md:max-w-[540px] lg:w-[540px]
 
-            flex items-center justify-center space-x-2
+            flex items-start justify-center space-x-2
 
-            absolute
-            left-1/2
-            -translate-x-1/2
-            top-2
+            md:absolute
+            md:left-1/2
+            md:-translate-x-1/2
+            md:top-2
 
         "
     >
         {@render middle()}
     </div>
 
+    <!-- Right -->
     <div
         class="
-            bg-green-50
             h-full
 
-            flex items-center justify-end space-x-2
+            hidden
+            md:flex items-center justify-end space-x-2
         "
     >
         {@render right()}
     </div>
 
 </div>
-
+</div>
 
 <!-- ----------------------------------------------------------------------- -->
