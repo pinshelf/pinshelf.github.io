@@ -4,9 +4,6 @@
     import { ModeWatcher } from 'mode-watcher'
     import * as Toolbar from '$lib/components/custom/toolbar'
     import * as Pager from '$lib/components/custom/pager'
-    import { Button } from '$lib/components/ui/button';
-    import { Stack } from 'radix-icons-svelte'
-    import * as Tooltip from '$lib/components/ui/tooltip';
 
     interface Profile {
         id: number,
