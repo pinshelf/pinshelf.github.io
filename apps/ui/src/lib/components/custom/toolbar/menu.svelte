@@ -178,16 +178,18 @@
         <DropdownMenu.Label class="md:hidden">Actions</DropdownMenu.Label>
         <div class="flex items-center justify-around md:hidden p-2">
             {#if !!activeProfile}
+                <!-- Edit homescreen button -->
                 <Button variant="outline" size="icon">
                     <Pencil2/>
                 </Button>
 
+                <!-- Settings button -->
                 <Button variant="outline" size="icon">
                     <Gear/>
                 </Button>
             {/if}
 
-            <!-- Theme toggle -->
+            <!-- Theme toggle button -->
             <ModeToggle />
         </div>
 

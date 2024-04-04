@@ -3,9 +3,10 @@
     import '../app.pcss';
     import { ModeWatcher } from 'mode-watcher'
     import * as Toolbar from '$lib/components/custom/toolbar'
+    import * as Pager from '$lib/components/custom/pager'
     import { Button } from '$lib/components/ui/button';
-    import { Gear, Pencil2 } from 'radix-icons-svelte'
-    import { ModeToggle } from '$lib/components/custom/mode-toggle';
+    import { Stack } from 'radix-icons-svelte'
+    import * as Tooltip from '$lib/components/ui/tooltip';
 
     interface Profile {
         id: number,
@@ -31,6 +32,7 @@
         },
     ]);
     let activeProfile = $state<Profile | null>(profiles[0]);
+    let activePage = $state<number>(0)
 
 </script>
 
@@ -57,19 +59,7 @@
     {/snippet}
 
     {#snippet right()}
-        <!-- Edit homescreen button -->
-        {#if !!activeProfile}
-            <Button variant="outline" size="icon" class="hidden md:flex">
-                <Pencil2/>
-            </Button>
-
-            <Button variant="outline" size="icon" class="hidden md:flex">
-                <Gear/>
-            </Button>
-        {/if}
-
-        <!-- Theme toggle -->
-        <ModeToggle class="hidden md:block" />
+        <Toolbar.Actions activeProfile={!!activeProfile} />
     {/snippet}
 </Toolbar.Root>
 
@@ -77,6 +67,22 @@
 <slot/>
 
 <!-- Pager -->
+<Pager.Root>
+    {#snippet left()}
+        <Pager.Version/>
+    {/snippet}
+
+    {#snippet middle()}
+        <Pager.Pagination
+            pages={!!activeProfile ? activeProfile.pages : []}
+            bind:activePage={activePage}
+        />
+    {/snippet}
+
+    {#snippet right()}
+        <Pager.Actions />
+    {/snippet}
+</Pager.Root>
 
 
 <!-- ----------------------------------------------------------------------- -->
