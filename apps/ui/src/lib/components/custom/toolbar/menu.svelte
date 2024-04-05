@@ -9,7 +9,6 @@
     import { Gear, HamburgerMenu, Pencil2 } from 'radix-icons-svelte';
     import { ModeToggle } from '$lib/components/custom/mode-toggle';
     import Indicator from './indicator.svelte'
-    import * as Dialog from "$lib/components/ui/dialog";
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -223,14 +222,6 @@
         Explorer
     </Button>
 {/if}
-
-<!-- Manage Profiles Dialog -->
-<!-- <Dialog.Root portal="html" bind:open={manageProfilesDialogOpen}>
-    <Dialog.Trigger />
-    <Dialog.Content class="top-32 left-1/2">
-        <div class="bg-red-100 w-full h-8"></div>
-    </Dialog.Content>
-</Dialog.Root> -->
 
 
 <!-- ----------------------------------------------------------------------- -->
