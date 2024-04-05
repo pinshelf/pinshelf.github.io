@@ -4,6 +4,7 @@
     import { ModeWatcher } from 'mode-watcher'
     import * as Toolbar from '$lib/components/custom/toolbar'
     import * as Pager from '$lib/components/custom/pager'
+    import { fade } from 'svelte/transition'
 
     interface Profile {
         id: number,
@@ -31,6 +32,7 @@
     let activeProfile = $state<Profile | null>(profiles[0]);
     let activePage = $state<number>(0)
 
+    let manageProfilesDialogOpen = $state(false)
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
@@ -48,6 +50,7 @@
         <Toolbar.Menu
             profiles={profiles}
             bind:activeProfile={activeProfile}
+            bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
         />
     {/snippet}
 
@@ -80,6 +83,39 @@
         <Pager.Actions />
     {/snippet}
 </Pager.Root>
+
+<!-- Dialogs -->
+{#if manageProfilesDialogOpen === true}
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+    transition:fade={{ duration: 200 }}
+
+    class="
+        bg-zinc-500/40 dark:bg-zinc-950/40 backdrop-blur-sm
+        w-full h-dvh
+        fixed left-0 top-0 z-50
+        flex flex-col items-center justify-around
+        p-4
+    "
+
+    onclick={() => manageProfilesDialogOpen = false}
+>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
+        class="
+            bg-indigo-800
+            w-full max-w-[640px]
+            h-auto
+        "
+
+        onclick={(e) => e.stopPropagation()}
+    >
+        <!--  -->
+    </div>
+</div>
+{/if}
 
 
 <!-- ----------------------------------------------------------------------- -->

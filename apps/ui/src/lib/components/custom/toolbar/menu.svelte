@@ -9,16 +9,19 @@
     import { Gear, HamburgerMenu, Pencil2 } from 'radix-icons-svelte';
     import { ModeToggle } from '$lib/components/custom/mode-toggle';
     import Indicator from './indicator.svelte'
+    import * as Dialog from "$lib/components/ui/dialog";
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
         profiles: { id: number, name: string }[],
         activeProfile: { id: number, name: string } | null,
+        manageProfilesDialogOpen: boolean,
     }
 
     let {
         profiles,
         activeProfile = $bindable(),
+        manageProfilesDialogOpen = $bindable(),
     }: Props = $props();
 
     // Types ///////////////////////////////////////////////////////////////////
@@ -145,12 +148,16 @@
 
         <!-- Manage profiles button -->
         <div class="px-2 py-1.5">
-            <Button class="w-full relative" onclick={() => menuOpen = false}>
+            <Button class="w-full relative" onclick={() => {
+                manageProfilesDialogOpen = true;
+                menuOpen = false;
+            }}>
                 Manage Profiles
 
                 <!-- Indicator -->
                 <Indicator show={createProfileIndicator} />
             </Button>
+
         </div>
 
         <!-- Naviation Buttons (< xl) -->
@@ -216,6 +223,14 @@
         Explorer
     </Button>
 {/if}
+
+<!-- Manage Profiles Dialog -->
+<!-- <Dialog.Root portal="html" bind:open={manageProfilesDialogOpen}>
+    <Dialog.Trigger />
+    <Dialog.Content class="top-32 left-1/2">
+        <div class="bg-red-100 w-full h-8"></div>
+    </Dialog.Content>
+</Dialog.Root> -->
 
 
 <!-- ----------------------------------------------------------------------- -->
