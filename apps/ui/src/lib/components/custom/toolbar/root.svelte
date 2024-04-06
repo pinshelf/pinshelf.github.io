@@ -39,7 +39,7 @@
                 h-12
                 w-full md:w-[62%] md:max-w-[540px] lg:w-[540px]
                 flex items-start justify-center space-x-2
-                md:absolute md:left-1/2 md:-translate-x-1/2 md:top-2
+                relative md:absolute md:left-1/2 md:-translate-x-1/2 md:top-2
             "
         >
             {@render middle()}

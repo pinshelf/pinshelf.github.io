@@ -42,7 +42,7 @@
         if (login.err) { error = login.val; return }
 
         // Add profile to state
-        let res = profiles.add({ name, backend: 'xbs', credentials });
+        let res = profiles.add({ name, backend: 'xbs', credentials: login.val.getCredentials() });
 
         // Handle error
         if (res.err) { error = res.val }
@@ -64,7 +64,7 @@
 
         // Apply update
         let res = profiles.update(oldName, {
-            name, backend: 'xbs', credentials
+            name, backend: 'xbs', credentials: login.val.getCredentials()
         })
 
         // Handle Error

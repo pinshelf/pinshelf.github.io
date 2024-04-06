@@ -7,9 +7,12 @@
     import * as Pager from '$lib/components/custom/pager'
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
+    import { SearchBar } from '$lib/components/custom/search'
 
     // Stores //////////////////////////////////////////////////////////////////
     import profiles from '$lib/state/profiles.svelte';
+    import backend from '$lib/state/backend.svelte';
+    import { RaindropBackendBuilder, XbsBackendBuilder } from '$lib/backends';
 
     // State ///////////////////////////////////////////////////////////////////
     let pages = $state<{ name: string }[]>([
@@ -21,9 +24,51 @@
 
     let manageProfilesDialogOpen = $state(false)
 
+    // Mount ///////////////////////////////////////////////////////////////////
+    $effect(() => {
+        setBackend()
+    })
+
     // Functions ///////////////////////////////////////////////////////////////
-    function onProfileChange(profileName: string) {
+    async function onProfileChange(profileName: string) {
         profiles.setActive(profileName)
+        await setBackend()
+    }
+
+    async function setBackend() {
+        // Create backend for the selected profile
+        if (!profiles.active) {
+            console.log("cannot set backend because no profile is active")
+            return
+        }
+        if (profiles.active!.backend === 'xbs') {
+            console.log("set backend xbs")
+
+            // Re-authenticate
+            const xbsBackend = await XbsBackendBuilder.auth(profiles.active!.credentials)
+            if (xbsBackend.err) {
+                console.log(`error: ${xbsBackend.val}`)
+                return
+            } // TODO: error handling
+
+            // Write backend to store
+            backend.set(xbsBackend.val)
+
+        } else if (profiles.active!.backend === 'raindrop') {
+            console.log("set backend raindrop")
+
+            // Re-authenticate
+            const rdBackend = await RaindropBackendBuilder
+                .auth(profiles.active!.credentials)
+
+            if (rdBackend.err) {
+                console.log(`error: ${rdBackend.val}`)
+                return
+            } // TODO: error handling
+
+            // Write backend to state
+            backend.set(rdBackend.val)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -51,6 +96,7 @@
 
     {#snippet middle()}
         <!-- Searchbar -->
+        <SearchBar />
     {/snippet}
 
     {#snippet right()}
