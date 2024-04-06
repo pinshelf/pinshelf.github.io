@@ -1,36 +1,32 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
+    // Imports /////////////////////////////////////////////////////////////////
     import '../app.pcss';
     import { ModeWatcher } from 'mode-watcher'
     import * as Toolbar from '$lib/components/custom/toolbar'
     import * as Pager from '$lib/components/custom/pager'
+    import { Dialog } from '$lib/components/custom/dialog';
+    import { ManageProfiles } from '$lib/components/custom/manage-profiles';
 
-    interface Profile {
-        id: number,
-        name: string,
-        pages: { id: number, name: string }[],
+    // Stores //////////////////////////////////////////////////////////////////
+    import profiles from '$lib/state/profiles.svelte';
+
+    // State ///////////////////////////////////////////////////////////////////
+    let pages = $state<{ name: string }[]>([
+        { name: "Personal" },
+        { name: "Finances" },
+    ])
+
+    let activePage = $state<string>("Personal")
+
+    let manageProfilesDialogOpen = $state(false)
+
+    // Functions ///////////////////////////////////////////////////////////////
+    function onProfileChange(profileName: string) {
+        profiles.setActive(profileName)
     }
 
-    let profiles = $state<Profile[]>([
-        {
-            id: 0,
-            name: "Personal Bookmarks",
-            pages: [
-                { id: 0, name: "Home" },
-                { id: 1, name: "Finance" },
-            ],
-        },
-        {
-            id: 1,
-            name: "Work",
-            pages: [
-                { id: 0, name: "Default" },
-            ],
-        },
-    ]);
-    let activeProfile = $state<Profile | null>(profiles[0]);
-    let activePage = $state<number>(0)
-
+    ////////////////////////////////////////////////////////////////////////////
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
@@ -46,8 +42,10 @@
 <Toolbar.Root>
     {#snippet left()}
         <Toolbar.Menu
-            profiles={profiles}
-            bind:activeProfile={activeProfile}
+            profiles={profiles.all}
+            activeProfile={profiles.active}
+            onProfileChange={onProfileChange}
+            bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
         />
     {/snippet}
 
@@ -56,7 +54,7 @@
     {/snippet}
 
     {#snippet right()}
-        <Toolbar.Actions activeProfile={!!activeProfile} />
+        <Toolbar.Actions activeProfile={!!profiles.active} />
     {/snippet}
 </Toolbar.Root>
 
@@ -71,7 +69,7 @@
 
     {#snippet middle()}
         <Pager.Pagination
-            pages={!!activeProfile ? activeProfile.pages : []}
+            pages={!!profiles.active ? pages : []}
             bind:activePage={activePage}
         />
     {/snippet}
@@ -80,6 +78,15 @@
         <Pager.Actions />
     {/snippet}
 </Pager.Root>
+
+<!-- Dialogs -->
+<!-- Todo -->
+<Dialog bind:open={manageProfilesDialogOpen}>
+    <ManageProfiles
+        profiles={profiles.all}
+        onClose={() => manageProfilesDialogOpen = false}
+    />
+</Dialog>
 
 
 <!-- ----------------------------------------------------------------------- -->

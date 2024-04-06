@@ -9,16 +9,21 @@
     import { Gear, HamburgerMenu, Pencil2 } from 'radix-icons-svelte';
     import { ModeToggle } from '$lib/components/custom/mode-toggle';
     import Indicator from './indicator.svelte'
+    import type { Profile } from '$lib/types';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
-        profiles: { id: number, name: string }[],
-        activeProfile: { id: number, name: string } | null,
+        profiles: Profile[],
+        activeProfile?: Profile,
+        manageProfilesDialogOpen: boolean,
+        onProfileChange: (profileName: string) => void
     }
 
     let {
         profiles,
-        activeProfile = $bindable(),
+        activeProfile,
+        manageProfilesDialogOpen = $bindable(),
+        onProfileChange,
     }: Props = $props();
 
     // Types ///////////////////////////////////////////////////////////////////
@@ -33,7 +38,7 @@
     let menuOpen = $state(false)
 
     // Indicator flags
-    let selectProfileIndicator = $derived(activeProfile === null)
+    let selectProfileIndicator = $derived(activeProfile === undefined)
     let createProfileIndicator = $derived(profiles.length === 0)
 
     // Effects /////////////////////////////////////////////////////////////////
@@ -60,9 +65,7 @@
     })
 
     // Functions ///////////////////////////////////////////////////////////////
-    function onProfileChange(id: number) {
-        activeProfile = profiles.find(p => p.id === id) || null
-    }
+
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
@@ -115,7 +118,7 @@
             <Select.Root
                 disabled={profiles.length === 0}
                 selected={activeProfile
-                    ? { value: activeProfile.id }
+                    ? { value: activeProfile.name }
                     : { value: undefined}
                 }
                 onSelectedChange={(x) => onProfileChange((x as any).value)}
@@ -134,7 +137,7 @@
                 <!-- Selector Content -->
                 <Select.Content>
                     {#each profiles as profile}
-                        <Select.Item value={profile.id}>
+                        <Select.Item value={profile.name}>
                             {profile.name}
                         </Select.Item>
                     {/each}
@@ -145,12 +148,16 @@
 
         <!-- Manage profiles button -->
         <div class="px-2 py-1.5">
-            <Button class="w-full relative" onclick={() => menuOpen = false}>
+            <Button class="w-full relative" onclick={() => {
+                manageProfilesDialogOpen = true;
+                menuOpen = false;
+            }}>
                 Manage Profiles
 
                 <!-- Indicator -->
                 <Indicator show={createProfileIndicator} />
             </Button>
+
         </div>
 
         <!-- Naviation Buttons (< xl) -->
