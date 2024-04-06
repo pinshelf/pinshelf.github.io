@@ -7,14 +7,51 @@
     import WebsearchSection from './websearch-section.svelte';
     import SearchResult from './search-result.svelte';
     import Websearch from './websearch.svelte';
+    import { type IBookmark } from '$lib/backends';
+    import Fuse from 'fuse.js';
+
+    // Stores //////////////////////////////////////////////////////////////////
+    import backend from '$lib/state/backend.svelte'
 
     // State ///////////////////////////////////////////////////////////////////
-    let input = $state<string>('asdf')
+    let input = $state<string>('')
     let isEmpty = $derived(input.length === 0)
     let autofocus = $state<boolean>(false)
 
     let corners = $derived(isEmpty ? '' : 'md:!rounded-b-none')
     let shadow = $derived(isEmpty ? '': 'md:shadow md:dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]')
+
+    let bookmarks = $state<IBookmark[]>([])
+    let fuse = $derived(new Fuse(bookmarks, {
+        keys: ['title', 'description', 'metadata.hostname']
+    }))
+    let searchResults = $derived(
+        fuse.search(input).slice(0, 4).map(x => x.item)
+    )
+
+    // Mount ///////////////////////////////////////////////////////////////////
+    $effect(() => {
+        // Get all bookmarks
+        if (backend.data.some) {
+            const b = backend.data.val
+
+            // Send request to API
+            b.get().then((data) => {
+                if (data.err) {
+                    console.log(`error while fetching bookmarks: ${data.val}`)
+                    return
+                }
+
+                // Update state
+                bookmarks = data.val
+
+                console.log(`fetched ${bookmarks.length} bookmarks`)
+            })
+
+        } else {
+            console.log("error: backend is not set. this should not happen!")
+        }
+    })
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
@@ -83,7 +120,21 @@
                 </div> -->
 
                 <ResultsSection>
-                    <SearchResult
+                    {#each searchResults as searchResult, index}
+                        {#if index === 0}
+                            <SearchResult
+                                isFirst={true}
+                                bookmark={searchResult}
+                            />
+                        {:else}
+                            <SearchResult
+                                isFirst={false}
+                                bookmark={searchResult}
+                            />
+                        {/if}
+                    {/each}
+
+                    <!-- <SearchResult
                         isFirst={true}
                         bookmark={{
                             id: 0,
@@ -121,13 +172,13 @@
                             description: "Online Code Repositories",
                             note: "",
                             url: "https://github.com",
-                            tags: ["dev", "git", "code"],
+                            tags: [],
                             metadata: {
                                 path: ["dev", "general"],
                                 hostname: "github.com",
                             },
                         }}
-                    />
+                    /> -->
                 </ResultsSection>
                 <WebsearchSection>
                     <Websearch search={input} />
