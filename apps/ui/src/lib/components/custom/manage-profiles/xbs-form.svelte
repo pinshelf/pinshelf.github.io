@@ -5,7 +5,7 @@
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
     import profiles from '$lib/state/profiles.svelte';
-
+    import { XbsBackendBuilder } from '$lib/backends';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -33,26 +33,45 @@
     let error = $state<string | undefined>()
 
     // Functions ///////////////////////////////////////////////////////////////
-    function onCreate() {
-        let res = profiles.add({
-            name,
-            backend: 'xbs',
-            credentials: { syncId, password },
-        });
+    async function onCreate() {
+        // Define credentials
+        const credentials = { syncId, password }
 
+        // Test credentials
+        let login = await XbsBackendBuilder.login(credentials)
+        if (login.err) { error = login.val; return }
+
+        // Add profile to state
+        let res = profiles.add({ name, backend: 'xbs', credentials });
+
+        // Handle error
         if (res.err) { error = res.val }
-        else { error = undefined }
+
+        // Clear inputs
+        name = ''
+        syncId = ''
+        password = ''
+        error = undefined
     }
 
-    function onUpdate() {
+    async function onUpdate() {
+        // Define credentials
+        const credentials = { syncId, password }
+
+        // Test credentials
+        let login = await XbsBackendBuilder.login(credentials)
+        if (login.err) { error = login.val; return }
+
+        // Apply update
         let res = profiles.update(oldName, {
-            name,
-            backend: 'xbs',
-            credentials: { syncId, password },
+            name, backend: 'xbs', credentials
         })
 
-        if (res.err) { error = res.val }
-        else { error = undefined }
+        // Handle Error
+        if (res.err) { error = res.val; return }
+
+        // Clear error
+        error = undefined
     }
 
     function onDelete() {

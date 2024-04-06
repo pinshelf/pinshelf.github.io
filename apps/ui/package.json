@@ -19,7 +19,9 @@
 		"tailwind-variants": "^0.2.1",
 		"ts-results": "^3.3.0",
 		"ts-results-utils": "workspace:*",
-		"zod": "^3.22.4"
+		"zod": "^3.22.4",
+		"xbs": "workspace:*",
+		"raindrop": "workspace:*"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",

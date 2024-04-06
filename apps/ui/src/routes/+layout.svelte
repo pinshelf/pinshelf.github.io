@@ -10,9 +10,6 @@
 
     // Stores //////////////////////////////////////////////////////////////////
     import profiles from '$lib/state/profiles.svelte';
-    import activeProfile from '$lib/state/active-profile.svelte';
-    import { type Profile } from '$lib/types';
-    activeProfile.init(profiles.all)
 
     // State ///////////////////////////////////////////////////////////////////
     let pages = $state<{ name: string }[]>([
@@ -26,10 +23,7 @@
 
     // Functions ///////////////////////////////////////////////////////////////
     function onProfileChange(profileName: string) {
-        const profile = profiles.get(profileName)
-        if (profile.ok) {
-            activeProfile.set(profile.val)
-        }
+        profiles.setActive(profileName)
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -49,7 +43,7 @@
     {#snippet left()}
         <Toolbar.Menu
             profiles={profiles.all}
-            activeProfile={activeProfile.get}
+            activeProfile={profiles.active}
             onProfileChange={onProfileChange}
             bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
         />
@@ -60,7 +54,7 @@
     {/snippet}
 
     {#snippet right()}
-        <Toolbar.Actions activeProfile={!!activeProfile} />
+        <Toolbar.Actions activeProfile={!!profiles.active} />
     {/snippet}
 </Toolbar.Root>
 
@@ -75,7 +69,7 @@
 
     {#snippet middle()}
         <Pager.Pagination
-            pages={!!activeProfile.get ? pages : []}
+            pages={!!profiles.active ? pages : []}
             bind:activePage={activePage}
         />
     {/snippet}

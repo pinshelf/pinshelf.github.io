@@ -35,6 +35,7 @@ function init(profiles: Profile[]) {
  */
 function set(profile: Profile) {
     activeProfile = profile
+    localStorage.write(LS_KEY, profile.name)
 }
 
 

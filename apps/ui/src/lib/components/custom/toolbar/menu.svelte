@@ -14,7 +14,7 @@
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
         profiles: Profile[],
-        activeProfile: Profile | null,
+        activeProfile?: Profile,
         manageProfilesDialogOpen: boolean,
         onProfileChange: (profileName: string) => void
     }
@@ -38,7 +38,7 @@
     let menuOpen = $state(false)
 
     // Indicator flags
-    let selectProfileIndicator = $derived(activeProfile === null)
+    let selectProfileIndicator = $derived(activeProfile === undefined)
     let createProfileIndicator = $derived(profiles.length === 0)
 
     // Effects /////////////////////////////////////////////////////////////////

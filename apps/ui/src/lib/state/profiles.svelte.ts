@@ -5,19 +5,40 @@ import { z } from 'zod';
 import { Result, Ok, Err } from 'ts-results';
 
 // Constants ///////////////////////////////////////////////////////////////////
-const LS_KEY = 'profiles' as const;
+const LS_KEY_PROFILES = 'profiles' as const;
+const LS_KEY_ACTIVE_PROFILE = 'active-profiles' as const;
 
 // State Initialization ////////////////////////////////////////////////////////
 let profiles = $state<Profile[]>([]);
+let activeProfileName = $state<string | undefined>();
+let activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
+
 
 // Load from local storage
 (() => {
-    // Read from localstorage
-    const result = localStorage.read(LS_KEY, z.array(ProfileSchema))
-    if (result.err) { return }
+    // Get profile list from localstorage
+    const list = localStorage.read(LS_KEY_PROFILES, z.array(ProfileSchema))
+    if (list.err) { return }
 
-    // Set value
-    profiles = result.val
+    profiles = list.val
+
+    // Get active profile from localstorage
+    const active = localStorage.read(LS_KEY_ACTIVE_PROFILE, z.object({
+        name: z.string().or(z.undefined())
+    }))
+    if (active.err) {
+        activeProfileName = undefined
+        localStorage.write(LS_KEY_ACTIVE_PROFILE, { name: undefined })
+        return
+    }
+
+    // Check if the active profile exists
+    if (list.val.find(p => p.name === active.val.name)) {
+        activeProfileName = active.val.name
+
+    } else {
+        localStorage.write(LS_KEY_ACTIVE_PROFILE, { name: undefined })
+    }
 })();
 
 // Functions ///////////////////////////////////////////////////////////////////
@@ -25,6 +46,11 @@ let profiles = $state<Profile[]>([]);
  * Get all profiles.
  */
 function all() { return profiles }
+
+/**
+ * Get active profile
+ */
+function active() { return activeProfile }
 
 /**
  * Get profile by name
@@ -51,7 +77,7 @@ function add(profile: Profile): Result<null, string> {
 
     // Add profile and write it to localStorage
     profiles.push(profile)
-    const result = localStorage.write(LS_KEY, profiles)
+    const result = localStorage.write(LS_KEY_PROFILES, profiles)
     if (result.err) {
         // Remove it from the state again.
         profiles.pop();
@@ -86,7 +112,7 @@ function update(name: string, newData: Profile): Result<null, string> {
     profiles.splice(index, 0, newData);
 
     // Write to localStorage
-    const result = localStorage.write(LS_KEY, profiles)
+    const result = localStorage.write(LS_KEY_PROFILES, profiles)
     if (result.err) {
         // Revert change in state
         profiles.splice(index, 1, profile)
@@ -98,7 +124,6 @@ function update(name: string, newData: Profile): Result<null, string> {
     return Ok(null)
 }
 
-
 /**
  * Remove profile
  */
@@ -108,23 +133,43 @@ function remove(name: string) {
     copy = copy.filter(p => p.name !== name);
 
     // Try to save modified copy in localstorage
-    const result = localStorage.write(LS_KEY, copy)
+    const result = localStorage.write(LS_KEY_PROFILES, copy)
     if (result.err) { return }
 
     // If modified copy was written successfully update the state
     profiles = copy;
+
+    // Check if the removed profile was the active profile
+    if (activeProfileName === name) {
+        activeProfileName = undefined
+        localStorage.write(LS_KEY_ACTIVE_PROFILE, { name: undefined })
+    }
+}
+
+/**
+ * Set active
+ */
+function setActive(name: string) {
+    const result = profiles.find(p => p.name === name)
+
+    if (result) {
+        activeProfileName = name
+        localStorage.write(LS_KEY_ACTIVE_PROFILE, { name })
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 export default {
     // Getter
     get all() { return all() },
+    get active() { return active() },
 
     // Functions
     get: get,
     add: add,
     update: update,
     remove: remove,
+    setActive: setActive,
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
     import profiles from '$lib/state/profiles.svelte';
+    import { RaindropBackendBuilder } from '$lib/backends';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -24,26 +25,44 @@
     let error = $state<string | undefined>()
 
     // Functions ///////////////////////////////////////////////////////////////
-    function onCreate() {
-        let res = profiles.add({
-            name,
-            backend: 'raindrop',
-            credentials: { token },
-        });
+    async function onCreate() {
+        // Define credentials
+        const credentials = { token }
 
-        if (res.err) { error = res.val }
-        else { error = undefined }
+        // Test credentials
+        let login = await RaindropBackendBuilder.login(credentials)
+        if (login.err) { error = login.val; return }
+
+        // Add profile to state
+        let res = profiles.add({ name, backend: 'raindrop', credentials });
+
+        // Handle error
+        if (res.err) { error = res.val; return }
+
+        // Clear inputs
+        name = ''
+        token = ''
+        error = undefined
     }
 
-    function onUpdate() {
+    async function onUpdate() {
+        // Define credentials
+        const credentials = { token }
+
+        // Test credentials
+        let login = await RaindropBackendBuilder.login(credentials)
+        if (login.err) { error = login.val; return }
+
+        // Apply update
         let res = profiles.update(oldName, {
-            name,
-            backend: 'raindrop',
-            credentials: { token },
+            name, backend: 'raindrop', credentials,
         })
 
+        // Handle error
         if (res.err) { error = res.val }
-        else { error = undefined }
+
+        // Clear error
+        error = undefined
     }
 
     function onDelete() {
