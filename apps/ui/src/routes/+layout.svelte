@@ -7,6 +7,7 @@
     import * as Pager from '$lib/components/custom/pager'
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
+    import { SearchBar } from '$lib/components/custom/search'
 
     // Stores //////////////////////////////////////////////////////////////////
     import profiles from '$lib/state/profiles.svelte';
@@ -51,6 +52,7 @@
 
     {#snippet middle()}
         <!-- Searchbar -->
+        <SearchBar />
     {/snippet}
 
     {#snippet right()}
