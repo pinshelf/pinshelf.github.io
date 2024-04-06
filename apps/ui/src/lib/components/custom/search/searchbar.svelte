@@ -3,6 +3,10 @@
     // Imports /////////////////////////////////////////////////////////////////
     import { Input } from '$lib/components/ui/input';
     import { fade } from 'svelte/transition'
+    import ResultsSection from './results-section.svelte';
+    import WebsearchSection from './websearch-section.svelte';
+    import SearchResult from './search-result.svelte';
+    import Websearch from './websearch.svelte';
 
     // State ///////////////////////////////////////////////////////////////////
     let input = $state<string>('asdf')
@@ -69,13 +73,66 @@
                     shadow dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]
                 "
             >
-                <div class="
+                <!-- Dummy -->
+                <!-- <div class="
                     w-full
                     h-[200px]
                     flex items-center justify-center
                 ">
                     <p>DUMMY</p>
-                </div>
+                </div> -->
+
+                <ResultsSection>
+                    <SearchResult
+                        isFirst={true}
+                        bookmark={{
+                            id: 0,
+                            title: "GitHub",
+                            description: "Online Code Repositories",
+                            note: "",
+                            url: "https://github.com",
+                            tags: ["dev", "git", "code", "asdfsdf", "asd", "asdfsf", "asdf", "asd", "sa", "asdfaeadsf", "as;ldkfjsadklfj"],
+                            metadata: {
+                                path: ["dev", "general"],
+                                hostname: "github.com",
+                            },
+                        }}
+                    />
+                    <SearchResult
+                        isFirst={false}
+                        bookmark={{
+                            id: 1,
+                            title: "GitHub",
+                            description: "Online Code Repositories",
+                            note: "",
+                            url: "https://github.com",
+                            tags: ["dev", "git", "code"],
+                            metadata: {
+                                path: ["dev", "general"],
+                                hostname: "github.com",
+                            },
+                        }}
+                    />
+                    <SearchResult
+                        isFirst={false}
+                        bookmark={{
+                            id: 2,
+                            title: "GitHub",
+                            description: "Online Code Repositories",
+                            note: "",
+                            url: "https://github.com",
+                            tags: ["dev", "git", "code"],
+                            metadata: {
+                                path: ["dev", "general"],
+                                hostname: "github.com",
+                            },
+                        }}
+                    />
+                </ResultsSection>
+                <WebsearchSection>
+                    <Websearch search={input} />
+                </WebsearchSection>
+
             </div>
         </div>
     {/if}
