@@ -1,38 +1,38 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
+    // Imports /////////////////////////////////////////////////////////////////
     import '../app.pcss';
     import { ModeWatcher } from 'mode-watcher'
     import * as Toolbar from '$lib/components/custom/toolbar'
     import * as Pager from '$lib/components/custom/pager'
-    import { fade } from 'svelte/transition'
+    import { Dialog } from '$lib/components/custom/dialog';
+    import { ManageProfiles } from '$lib/components/custom/manage-profiles';
 
-    interface Profile {
-        id: number,
-        name: string,
-        pages: { id: number, name: string }[],
-    }
+    // Stores //////////////////////////////////////////////////////////////////
+    import profiles from '$lib/state/profiles.svelte';
+    import activeProfile from '$lib/state/active-profile.svelte';
+    import { type Profile } from '$lib/types';
+    activeProfile.init(profiles.all)
 
-    let profiles = $state<Profile[]>([
-        {
-            id: 0,
-            name: "Personal Bookmarks",
-            pages: [
-                { id: 0, name: "Home" },
-                { id: 1, name: "Finance" },
-            ],
-        },
-        {
-            id: 1,
-            name: "Work",
-            pages: [
-                { id: 0, name: "Default" },
-            ],
-        },
-    ]);
-    let activeProfile = $state<Profile | null>(profiles[0]);
-    let activePage = $state<number>(0)
+    // State ///////////////////////////////////////////////////////////////////
+    let pages = $state<{ name: string }[]>([
+        { name: "Personal" },
+        { name: "Finances" },
+    ])
+
+    let activePage = $state<string>("Personal")
 
     let manageProfilesDialogOpen = $state(false)
+
+    // Functions ///////////////////////////////////////////////////////////////
+    function onProfileChange(profileName: string) {
+        const profile = profiles.get(profileName)
+        if (profile.ok) {
+            activeProfile.set(profile.val)
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
@@ -48,8 +48,9 @@
 <Toolbar.Root>
     {#snippet left()}
         <Toolbar.Menu
-            profiles={profiles}
-            bind:activeProfile={activeProfile}
+            profiles={profiles.all}
+            activeProfile={activeProfile.get}
+            onProfileChange={onProfileChange}
             bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
         />
     {/snippet}
@@ -74,7 +75,7 @@
 
     {#snippet middle()}
         <Pager.Pagination
-            pages={!!activeProfile ? activeProfile.pages : []}
+            pages={!!activeProfile.get ? pages : []}
             bind:activePage={activePage}
         />
     {/snippet}
@@ -85,37 +86,13 @@
 </Pager.Root>
 
 <!-- Dialogs -->
-{#if manageProfilesDialogOpen === true}
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-    transition:fade={{ duration: 200 }}
-
-    class="
-        bg-zinc-500/40 dark:bg-zinc-950/40 backdrop-blur-sm
-        w-full h-dvh
-        fixed left-0 top-0 z-50
-        flex flex-col items-center justify-around
-        p-4
-    "
-
-    onclick={() => manageProfilesDialogOpen = false}
->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div
-        class="
-            bg-indigo-800
-            w-full max-w-[640px]
-            h-auto
-        "
-
-        onclick={(e) => e.stopPropagation()}
-    >
-        <!--  -->
-    </div>
-</div>
-{/if}
+<!-- Todo -->
+<Dialog bind:open={manageProfilesDialogOpen}>
+    <ManageProfiles
+        profiles={profiles.all}
+        onClose={() => manageProfilesDialogOpen = false}
+    />
+</Dialog>
 
 
 <!-- ----------------------------------------------------------------------- -->
