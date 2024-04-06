@@ -3,8 +3,8 @@
     import { Badge } from '$lib/components/ui/badge'
 
     type Props = {
-        pages: { id: number, name: string }[],
-        activePage: number,
+        pages: { name: string }[],
+        activePage: string,
     }
     let { pages, activePage = $bindable() }: Props = $props();
 
@@ -12,18 +12,18 @@
 
 <!-- HTML ------------------------------------------------------------------ -->
 
-{#each pages as page, index}
-    {#if index === activePage}
+{#each pages as page}
+    {#if page.name === activePage}
         <Badge
             variant="default"
             class="cursor-pointer"
-            onclick={() => activePage = page.id}
+            onclick={() => activePage = page.name}
         >{page.name}</Badge>
     {:else}
         <Badge
             variant="secondary"
             class="cursor-pointer"
-            onclick={() => activePage = page.id}
+            onclick={() => activePage = page.name}
         >{page.name}</Badge>
     {/if}
     
