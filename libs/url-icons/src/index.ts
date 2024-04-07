@@ -79,6 +79,10 @@ const DB: Map<string, string> = new Map([
         'nixos.org',
         'https://upload.wikimedia.org/wikipedia/commons/3/35/Nix_Snowflake_Logo.svg'
     ],
+    [
+        'nixos.wiki',
+        'https://upload.wikimedia.org/wikipedia/commons/3/35/Nix_Snowflake_Logo.svg'
+    ],
 
     // ING DiBa
     [
