@@ -134,6 +134,42 @@ const DB: Map<string, string> = new Map([
     [
         'tidal.com',
         'https://play-lh.googleusercontent.com/mB-qbXtW0wJWNy1JwUWISygarel8LbYHi5Uw7m7jX_TkhZpJG7TXG2thYpDFmuurocc'
+    ],
+
+    // docs.rs
+    [
+        'docs.rs',
+        'https://upload.wikimedia.org/wikipedia/commons/d/d5/Rust_programming_language_black_logo.svg'
+    ],
+
+    // ycombinator
+    [
+        'ycombinator.com',
+        'https://upload.wikimedia.org/wikipedia/commons/b/b2/Y_Combinator_logo.svg'
+    ],
+
+    // YouTube
+    [
+        'youtube.com',
+        'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg'
+    ],
+
+    // Medium
+    [
+        'medium.com',
+        'https://upload.wikimedia.org/wikipedia/commons/e/ec/Medium_logo_Monogram.svg'
+    ],
+
+    // Stackoverflow
+    [
+        'stackoverflow.com',
+        'https://upload.wikimedia.org/wikipedia/commons/e/ef/Stack_Overflow_icon.svg'
+    ],
+
+    // Amazon
+    [
+        'amazon.de',
+        'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg'
     ]
 ])
 
