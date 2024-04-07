@@ -71,6 +71,9 @@ importers:
       ts-results-utils:
         specifier: workspace:*
         version: link:../../libs/ts-results-utils
+      url-icons:
+        specifier: workspace:*
+        version: link:../../libs/url-icons
       xbs:
         specifier: workspace:*
         version: link:../../libs/xbs
@@ -147,6 +150,8 @@ importers:
       ts-results:
         specifier: ^3.3.0
         version: 3.3.0
+
+  libs/url-icons: {}
 
   libs/xbs:
     dependencies:
