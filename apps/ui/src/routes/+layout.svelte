@@ -105,7 +105,9 @@
 </Toolbar.Root>
 
 <!-- Content -->
-<slot/>
+<div class="pt-16">
+    <slot/>
+</div>
 
 <!-- Pager -->
 <Pager.Root>
