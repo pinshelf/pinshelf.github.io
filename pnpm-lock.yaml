@@ -47,6 +47,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      dexie:
+        specifier: ^4.0.1
+        version: 4.0.1
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -1317,6 +1320,10 @@ packages:
   /devalue@4.3.2:
     resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
     dev: true
+
+  /dexie@4.0.1:
+    resolution: {integrity: sha512-wSNn+TcCh+DuE2pdg058K3MhxA4g+IiZlW7yGz4cMd/t3z2rJXZcV3HDxZljbrICU2Iq0qY4UHnbolTMK/+bcA==}
+    dev: false
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}

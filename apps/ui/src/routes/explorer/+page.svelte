@@ -1,161 +1,114 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { cn } from "$lib/utils";
-    import { ScrollArea } from "$lib/components/ui/scroll-area";
-    import { formatDistanceToNow } from "date-fns";
-    import { de } from "date-fns/locale";
+    import { cn } from '$lib/utils';
+    import { ScrollArea } from '$lib/components/ui/scroll-area';
+    import type { IBookmarkDb } from '$lib/utils/db';
+    import { bookmarksStore, loadData, updateBookmark } from '$lib/utils/dataService';
+    import { addNewTag, deleteTag, updateTag } from '$lib/utils/tagUtils';
     import backend from '$lib/state/backend.svelte';
-    import type { IBookmark } from '$lib/backends';
 
-    const TAGS_STORAGE_KEY = 'bookmarkTags';
-
-    let items: IBookmark[] = [];
-    let tags: string[] = [];
-    let selectedItem: number | null = null;
+    let bookmarks = $state<IBookmarkDb[]>([]);
+    let tags = $state<string[]>([]);
+    let selectedBookmark = $state<number | null>(null);
 
     function openLink(url: string) {
         window.open(url, '_blank');
     }
 
-    function handleTagClick(event: MouseEvent, item: IBookmark, index: number) {
+    function handleTagClick(event: MouseEvent, bookmark: IBookmarkDb, index: number) {
         event.stopPropagation();
         const input = event.target as HTMLInputElement;
         input.focus();
         input.select();
     }
 
-    function addNewTag(item: IBookmark) {
-        item.tags = [...item.tags, ''];
-        items = items;
-        setTimeout(() => {
-            const lastInput = document.querySelector(`input[data-item-id="${item.id}"]:last-child`) as HTMLInputElement;
-            if (lastInput) {
-                lastInput.focus();
-            }
-        }, 0);
+    async function updateBookmarksAndTags(updatedBookmark: IBookmarkDb | null) {
+        if (updatedBookmark && updatedBookmark.id !== undefined) {
+            await updateBookmark(updatedBookmark.id, updatedBookmark);
+            bookmarks = bookmarks.map(b => b.id === updatedBookmark.id ? updatedBookmark : b);
+            tags = [...new Set(bookmarks.flatMap(bookmark => bookmark.tags))];
+        }
     }
 
-    function deleteTag(item: IBookmark, index: number) {
-        item.tags.splice(index, 1);
-        items = items;
-        saveTags();
+    async function handleAddNewTag(bookmark: IBookmarkDb) {
+        const updatedBookmark = await addNewTag(bookmark);
+        await updateBookmarksAndTags(updatedBookmark);
     }
 
-    function handleTagKeyDown(event: KeyboardEvent, item: IBookmark, index: number) {
+    async function handleDeleteTag(bookmark: IBookmarkDb, index: number) {
+        const updatedBookmark = await deleteTag(bookmark, index);
+        await updateBookmarksAndTags(updatedBookmark);
+    }
+
+    async function handleTagKeyDown(event: KeyboardEvent, bookmark: IBookmarkDb, index: number) {
         if (event.key === 'Enter') {
             event.preventDefault();
-            const newTag = (event.target as HTMLInputElement).value.trim();
+            const newTag = bookmark.tags[index].trim();
+            let updatedBookmark: IBookmarkDb | null = null;
+
             if (newTag !== '') {
-                item.tags[index] = newTag;
-                items = items;
-                saveTags();
+                updatedBookmark = await updateTag(bookmark, index, newTag);
             } else {
-                deleteTag(item, index);
+                updatedBookmark = await deleteTag(bookmark, index);
             }
+
+            await updateBookmarksAndTags(updatedBookmark);
             (event.target as HTMLInputElement).blur();
         }
     }
 
-    function saveTags() {
-        const tagsByBookmarkId: Record<number, string[]> = {};
-        items.forEach(item => {
-            tagsByBookmarkId[item.id] = item.tags;
+    $effect(() => {
+        loadData().then(() => {
+            bookmarks = $bookmarksStore;
+            tags = [...new Set(bookmarks.flatMap(bookmark => bookmark.tags))];
         });
-        localStorage.setItem(TAGS_STORAGE_KEY, JSON.stringify(tagsByBookmarkId));
-    }
-
-    function loadTags() {
-        const savedTags = localStorage.getItem(TAGS_STORAGE_KEY);
-        if (savedTags) {
-            const tagsByBookmarkId: Record<number, string[]> = JSON.parse(savedTags);
-            items.forEach(item => {
-                if (tagsByBookmarkId[item.id]) {
-                    item.tags = tagsByBookmarkId[item.id];
-                }
-            });
-            tags = [...new Set(items.flatMap(item => item.tags))];
-        }
-    }
-
-    async function loadData() {
-        const backendData = backend.data;
-        if (backendData.some) {
-            const result = await backendData.val.get();
-            if (result.ok) {
-                items = result.val;
-                loadTags();
-            } else {
-                console.error('Fehler beim Laden der Lesezeichen:', result.val);
-            }
-        } else {
-            console.error('Kein Backend verfügbar');
-        }
-    }
-
-    onMount(async () => {
-        await loadData();
     });
 </script>
 
 <div class="flex">
-    <!-- Content -->
     <ScrollArea class="h-[calc(100vh-4rem)] flex-1">
         <div class="flex flex-col gap-2 p-4 pt-0">
-            {#each items as item}
+            {#each bookmarks as bookmark}
                 <div
                     class={cn(
                         "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                        selectedItem === item.id && "bg-muted"
+                        selectedBookmark === bookmark.id && "bg-muted"
                     )}
                 >
-                    <button class="w-full text-left" on:click={() => openLink(item.url)}>
+                    <button class="w-full text-left" on:click={() => openLink(bookmark.url)}>
                         <div class="flex w-full flex-col gap-1">
                             <div class="flex items-center">
-                                <div class="font-semibold">{item.title}</div>
-                                <div
-                                    class={cn(
-                                        "ml-auto text-xs",
-                                        selectedItem === item.id ? "text-foreground" : "text-muted-foreground"
-                                    )}
-                                >
-                                    {formatDistanceToNow(new Date(), { addSuffix: true, locale: de })}
-                                </div>
+                                <div class="font-semibold">{bookmark.title}</div>
                             </div>
-                            <div class="text-xs font-medium">{item.description}</div>
+                            <div class="text-xs font-medium">{bookmark.description}</div>
                         </div>
                     </button>
                     <div class="flex flex-wrap gap-2">
-                        {#each item.tags as tag, index}
+                        {#each bookmark.tags as tag, index}
                             <div class="relative group">
                                 <input
                                     type="text"
-                                    value={tag}
-                                    data-item-id={item.id}
+                                    bind:value={bookmark.tags[index]}
+                                    data-bookmark-id={bookmark.id}
                                     class="cursor-pointer justify-start rounded-lg border px-2 py-1 pr-6 text-sm"
-                                    on:click={(event) => handleTagClick(event, item, index)}
-                                    on:keydown={(event) => handleTagKeyDown(event, item, index)}
+                                    on:click={(event) => handleTagClick(event, bookmark, index)}
+                                    on:keydown={(event) => handleTagKeyDown(event, bookmark, index)}
                                 />
                                 <button
                                     class="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer text-sm text-red-500 opacity-0 transition-opacity group-hover:opacity-100"
-                                    on:click={() => deleteTag(item, index)}
+                                    on:click={() => handleDeleteTag(bookmark, index)}
                                 >
                                     &times;
                                 </button>
                             </div>
-                            {#if (index + 1) % 3 === 0}
-                                <br />
-                            {/if}
                         {/each}
                         <button
                             class="cursor-pointer justify-start rounded-lg border px-2 py-1 text-sm"
-                            on:click={() => addNewTag(item)}
+                            on:click={() => handleAddNewTag(bookmark)}
                         >
                             + New Tag
                         </button>
                     </div>
-                </div>
-                <div>
-                    {console.log(`Tags for "${item.title}":`, item.tags)}
                 </div>
             {/each}
         </div>

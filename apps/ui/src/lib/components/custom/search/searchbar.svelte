@@ -32,26 +32,24 @@
     // Mount ///////////////////////////////////////////////////////////////////
     $effect(() => {
         // Get all bookmarks
-        if (backend.data.some) {
-            const b = backend.data.val
+        if (!backend.loading && backend.data.some) {
+            const b = backend.data.val;
 
             // Send request to API
             b.get().then((data) => {
-                if (data.err) {
-                    console.log(`error while fetching bookmarks: ${data.val}`)
-                    return
+                if (data.ok) {
+                    // Update state
+                    bookmarks = data.val;
+
+                    console.log(`fetched ${bookmarks.length} bookmarks`);
+                } else {
+                    console.log(`error while fetching bookmarks: ${data.val}`);
                 }
-
-                // Update state
-                bookmarks = data.val
-
-                console.log(`fetched ${bookmarks.length} bookmarks`)
-            })
-
+            });
         } else {
-            console.log("error: backend is not set. this should not happen!")
+            console.log("Backend wird noch geladen...");
         }
-    })
+    });
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
