@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { cn } from "$lib/utils";
     import { ScrollArea } from "$lib/components/ui/scroll-area";
     import { formatDistanceToNow } from "date-fns";
@@ -9,10 +8,10 @@
     import { Button } from "$lib/components/ui/button";
 
 
-    let items: IBookmark[] = [];
-    let tags: string[] = [];
-    let selectedItem: number | null = null;
-    let isCollapsed = false;
+    let items = $state<IBookmark[]>([]);
+    let tags = $state<string[]>([]);
+    let selectedItem = $state<number | null>(null);
+    let isCollapsed = $state<boolean>(false);
 
     function openLink(url: string) {
         window.open(url, '_blank');
@@ -23,20 +22,41 @@
         alert(`Du hast auf das Tag "${tag}" geklickt!`);
     }
 
-    onMount(async () => {
+    // onMount(async () => {
+    //     const backendData = backend.data;
+    //     if (backendData.some) {
+    //         const result = await backendData.val.get();
+    //         if (result.ok) {
+    //             items = result.val;
+    //             tags = [...new Set(items.flatMap(item => item.tags))];
+    //         } else {
+    //             console.error('Fehler beim Laden der Lesezeichen:', result.val);
+    //         }
+    //     } else {
+    //         console.error('Kein Backend verfügbar');
+    //     }
+    // });
+
+    $effect(() => {
         const backendData = backend.data;
         if (backendData.some) {
-            const result = await backendData.val.get();
-            if (result.ok) {
-                items = result.val;
-                tags = [...new Set(items.flatMap(item => item.tags))];
-            } else {
-                console.error('Fehler beim Laden der Lesezeichen:', result.val);
-            }
+            backendData.val.get().then((result) => {
+                if (result.ok) {
+                    items = result.val;
+                    tags = [...new Set(items.flatMap(item => item.tags))]
+                } else {
+                    console.error(
+                        'Fehler beim Laden der Lesezeichen:',
+                        result.val
+                    );
+                }
+            })
         } else {
             console.error('Kein Backend verfügbar');
         }
-    });
+    })
+
+
 </script>
 
 <div class="flex">
