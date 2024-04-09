@@ -11,7 +11,7 @@ const LS_KEY_ACTIVE_PROFILE = 'active-profiles' as const;
 // State Initialization ////////////////////////////////////////////////////////
 let profiles = $state<Profile[]>([]);
 let activeProfileName = $state<string | undefined>();
-let activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
+const activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
 
 
 // Load from local storage

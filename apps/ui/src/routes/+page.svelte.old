@@ -1,0 +1,295 @@
+<!-- Script ---------------------------------------------------------------- -->
+<script lang="ts">
+    // import {dndzone} from "svelte-dnd-action";
+    // import { flip } from 'svelte/animate'
+
+    import Grid from "svelte-grid";
+    import gridHelp from "svelte-grid/build/helper/index.mjs";
+
+    import { App as AppComp, Divider as DivComp } from '$lib/components/custom/homescreen'
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    // // This will be the global state
+    // type Page = {
+    //     title: string,
+    //     grid: (AppGroup | GridDivider)[],
+    // }
+
+    // type AppGroup = {
+    //     apps: App[]
+    // }
+
+    // type App = {
+    //     id: string,
+    //     bookmarkId: number,
+    //     titleOverwrite?: string | undefined,
+    //     iconUrlOverwrite?: string | undefined,
+    // }
+
+    // type GridDivider = {
+    //     text: string
+    // }
+
+    // let page = $state<Page>({
+    //     title: "Test Page",
+    //     grid: [],
+    // })
+
+    // function gridItemType(item: AppGroup | GridDivider): 'appGroup' | 'divider' {
+    //     if ((item as AppGroup).apps) { return 'appGroup'}
+    //     else return 'divider'
+    // }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    type GridItemData = {
+        type: 'app' | 'divider'
+        id: string, // the id property is very important for 'svelte-grid' !!!
+        title: string,
+        url: string,
+        iconUrl: string,
+    }
+
+    interface App {
+        title: string
+    }
+
+    interface Group {
+        type: 'group'
+        apps: App[]
+    }
+
+    interface Divider {
+        type: 'divider'
+        title: string
+    }
+
+
+
+    let homescreen = $state<(Group | Divider)[]>([
+        {
+            type: 'group',
+            apps: [
+                { title: 'app 1' },
+                { title: 'app 2' },
+                { title: 'app 3' },
+            ]
+        },
+
+        {
+            type: 'divider',
+            title: 'Divider 1',
+        },
+
+        {
+            type: 'group',
+            apps: [
+                { title: 'app 4' },
+                { title: 'app 5' },
+            ]
+        },
+    ])
+
+    let grid = $state<GridItem[]>([]);
+
+    // interface Position { x: number, y: number };
+
+    type GridItem = {
+        4: any,
+        8: any,
+    } & GridItemData;
+
+    // When homescreen changes, re-calculate the grid items.
+    $effect(() => {
+        page; // homescreen;
+        console.log(">>> homescreen changed")
+
+        const tmpGrid: any[] = []
+
+        let currRow4 = 0
+        let currRow8 = 0
+
+        // for (const x of homescreen) {
+        for (const x of page.grid) {
+            if (gridItemType(x) === 'divider') {
+                // Type guard
+                let divider = x as GridDivider
+
+                tmpGrid.push({
+                    4: gridHelp.item({
+                        x: 0,
+                        y: currRow4,
+                        w: 4,
+                        h: 1,
+                        resizable: false,
+                    }),
+
+                    8: gridHelp.item({
+                        x: 0,
+                        y: currRow8,
+                        w: 8,
+                        h: 1,
+                        resizable: false,
+                    }),
+
+                    ...divider,
+                })
+            }
+
+            else if (gridItemType(x) === 'appGroup') {
+                // Type guard
+                const appGroup = x as AppGroup;
+
+                for (const [i, app] of appGroup.apps.entries()) {
+                    let row4 = Math.floor(i / 4)
+                    let col4 = i % 4
+
+                    let row8 = Math.floor(i / 8)
+                    let col8 = i % 8
+
+                    tmpGrid.push({
+                        4: gridHelp.item({
+                            x: col4,
+                            y: row4 + currRow4,
+                            w: 1,
+                            h: 1,
+                            resizable: false,
+                        }),
+                        8: gridHelp.item({
+                            x: col8,
+                            y: row8 + currRow8,
+                            w: 1,
+                            h: 1,
+                            resizable: false,
+                        }),
+
+                        ...app,
+                    })
+                }
+
+                // Row correction
+                currRow4 += Math.floor(appGroup.apps.length / 4)
+                currRow8 += Math.floor(appGroup.apps.length / 8)
+
+                if (Math.floor(appGroup.apps.length / 4) > 0 && appGroup.apps.length % 4 === 0) {
+                    currRow4 -= 1
+                }
+
+                if (Math.floor(appGroup.apps.length / 8) > 0 && appGroup.apps.length % 8 === 0) {
+                    currRow8 -= 1
+                }
+            }
+
+            // Inc row
+            currRow4 += 1;
+            currRow8 += 1;
+        }
+
+        grid = tmpGrid
+    })
+
+    function onChange() {
+        // New homescreen
+        const newHomescreen: (AppGroup | GridDivider)[] = []
+
+        // Current cols
+        const c = currentCols()
+
+        // Copy grid
+        const items = [...grid]
+
+        // Sort items
+        items.sort((a, b) => {
+            if (a[c].y === b[c].y) { return a[c].x - b[c].x }
+            return a[c].y - b[c].y
+        })
+
+        let group: App[] = []
+
+        for (const item of items) {
+            if (item.type === 'divider') {
+                // Flush app group
+                newHomescreen.push({ apps: group })
+                group = []
+
+                // Add divider
+                newHomescreen.push({
+                    text: item.title,
+                })
+
+            } else {
+                group.push({
+                    title: (item as any).title
+                })
+            }
+        }
+
+        // Flush app group
+        newHomescreen.push({ type: 'group', apps: group })
+
+        // TODO: 
+        // homescreen = newHomescreen
+    }
+
+    const cols = [
+        // <= 1000  => 4 columns
+        [ 640, 4 ],
+
+        // <= 1000000 => 8 columns
+        [ 1_000_000, 8 ],
+    ]
+        .sort((a, b) => a[0] - b[0]);
+
+
+    function currentCols(): 4 | 8 {
+        const w = window.innerWidth
+        for (const c of cols) {
+            const width = c[0];
+            const cols = c[1];
+            if (w <= width) { return cols as 4 | 8 }
+        }
+
+        return 8
+    }
+
+</script>
+
+<!-- HTML ------------------------------------------------------------------ -->
+<p>Homescreen coming soon!</p>
+
+<div class="w-full">
+    <Grid
+        bind:items={grid}
+        rowHeight={180}
+        let:item
+        let:dataItem
+        {cols}
+        fastStart={true}
+        on:change={onChange}
+        throttleUpdate={1_000}
+    >
+        <div
+            class="
+                flex justify-center items-center
+                bg-blue-900/40
+                h-full
+            "
+        >
+            {#if dataItem.type === 'divider'}
+                <div class="bg-zinc-700 w-full h-16 flex justify-center items-center">
+                    {dataItem.title}
+                </div>
+            {:else}
+                <div class="bg-zinc-700 w-16 h-16 flex justify-center items-center">
+                    {dataItem.title}
+                </div>
+            {/if}
+        </div>
+    </Grid>
+</div>
+
+
+
+<!-- ----------------------------------------------------------------------- -->

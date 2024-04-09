@@ -10,6 +10,7 @@
     import { ModeToggle } from '$lib/components/custom/mode-toggle';
     import Indicator from './indicator.svelte'
     import type { Profile } from '$lib/types';
+    import { homescreen } from '$lib/state/data'
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -186,7 +187,21 @@
         <div class="flex items-center justify-around md:hidden p-2">
             {#if !!activeProfile}
                 <!-- Edit homescreen button -->
-                <Button variant="outline" size="icon">
+                <Button
+                    variant={homescreen.editMode
+                        ? 'default'
+                        : 'outline'
+                    }
+                    size="icon"
+
+                    on:click={() => {
+                        if (homescreen.editMode === true) {
+                            homescreen.editMode = false
+                        } else {
+                            homescreen.editMode = true
+                        }
+                    }}
+                >
                     <Pencil2/>
                 </Button>
 

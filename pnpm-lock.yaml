@@ -56,6 +56,9 @@ importers:
       raindrop:
         specifier: workspace:*
         version: link:../../libs/raindrop
+      svelte-grid:
+        specifier: ^5.1.2
+        version: 5.1.2
       svelte-radix:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.0.0-next.95)
@@ -74,6 +77,9 @@ importers:
       url-icons:
         specifier: workspace:*
         version: link:../../libs/url-icons
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
       xbs:
         specifier: workspace:*
         version: link:../../libs/xbs
@@ -105,6 +111,9 @@ importers:
       svelte-check:
         specifier: ^3.6.0
         version: 3.6.9(postcss@8.4.38)(svelte@5.0.0-next.95)
+      svelte-dnd-action:
+        specifier: ^0.9.42
+        version: 0.9.42(svelte@5.0.0-next.95)
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
@@ -2641,6 +2650,18 @@ packages:
       - sugarss
     dev: true
 
+  /svelte-dnd-action@0.9.42(svelte@5.0.0-next.95):
+    resolution: {integrity: sha512-hrlMnAtUrQP8V4vH9+dKHzX3z5u9BAo6F/BUUqKftiF6/Wh+yC560kgzTzB2fSZxumd2e6A4RalwlH0NYIllSw==}
+    peerDependencies:
+      svelte: '>=3.23.0'
+    dependencies:
+      svelte: 5.0.0-next.95
+    dev: true
+
+  /svelte-grid@5.1.2:
+    resolution: {integrity: sha512-Suwgb+L3LALhTyA7z4vn87UOJ+xBY6EeKa6MdWqDv/lZOtQgIZ21ry/I6txIn9IC0p8of4AiOXupkSMcZ+DEug==}
+    dev: false
+
   /svelte-hmr@0.15.3(svelte@5.0.0-next.95):
     resolution: {integrity: sha512-41snaPswvSf8TJUhlkoJBekRrABDXDMdpNpT2tfHIv4JuhgvHqLMhEPGtaQn0BmbNSTkuz2Ed20DF2eHw0SmBQ==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
@@ -2890,6 +2911,11 @@ packages:
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  /uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
+    dev: false
 
   /vite-node@1.4.0(@types/node@20.12.5):
     resolution: {integrity: sha512-VZDAseqjrHgNd4Kh8icYHWzTKSCZMhia7GyHfhtzLW33fZlG9SwsB6CEhgyVOWkJfJ2pFLrp/Gj1FSfAiqH9Lw==}

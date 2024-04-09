@@ -10,65 +10,18 @@
     import { SearchBar } from '$lib/components/custom/search'
 
     // Stores //////////////////////////////////////////////////////////////////
-    import profiles from '$lib/state/profiles.svelte';
-    import backend from '$lib/state/backend.svelte';
-    import { RaindropBackendBuilder, XbsBackendBuilder } from '$lib/backends';
+    import {profiles, backend } from '$lib/state/config';
 
     // State ///////////////////////////////////////////////////////////////////
-    let pages = $state<{ name: string }[]>([
-        { name: "Personal" },
-        { name: "Finances" },
-    ])
-
-    let activePage = $state<string>("Personal")
-
     let manageProfilesDialogOpen = $state(false)
 
     // Mount ///////////////////////////////////////////////////////////////////
-    $effect(() => {
-        setBackend()
-    })
+    $effect(() => { backend.set() })
 
     // Functions ///////////////////////////////////////////////////////////////
     async function onProfileChange(profileName: string) {
         profiles.setActive(profileName)
-        await setBackend()
-    }
-
-    async function setBackend() {
-        // Create backend for the selected profile
-        if (!profiles.active) {
-            console.log("cannot set backend because no profile is active")
-            return
-        }
-        if (profiles.active!.backend === 'xbs') {
-            console.log("set backend xbs")
-
-            // Re-authenticate
-            const xbsBackend = await XbsBackendBuilder.auth(profiles.active!.credentials)
-            if (xbsBackend.err) {
-                console.log(`error: ${xbsBackend.val}`)
-                return
-            } // TODO: error handling
-
-            // Write backend to store
-            backend.set(xbsBackend.val)
-
-        } else if (profiles.active!.backend === 'raindrop') {
-            console.log("set backend raindrop")
-
-            // Re-authenticate
-            const rdBackend = await RaindropBackendBuilder
-                .auth(profiles.active!.credentials)
-
-            if (rdBackend.err) {
-                console.log(`error: ${rdBackend.val}`)
-                return
-            } // TODO: error handling
-
-            // Write backend to state
-            backend.set(rdBackend.val)
-        }
+        backend.set()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -107,8 +60,15 @@
 <!-- Content -->
 <div class="
     fixed w-full h-dvh pt-10 pb-20 sm:pt-16 sm:pb-10
+    flex justify-center
 ">
-    <slot/>
+    <!-- Content Wrapper -->
+    <div class="
+        w-full max-w-5xl h-full py-8
+        overflow-auto
+    ">
+        <slot/>
+    </div>
 </div>
 
 
@@ -119,14 +79,11 @@
     {/snippet}
 
     {#snippet middle()}
-        <Pager.Pagination
-            pages={!!profiles.active ? pages : []}
-            bind:activePage={activePage}
-        />
+        <Pager.Pagination/>
     {/snippet}
 
     {#snippet right()}
-        <Pager.Actions />
+        <Pager.Actions/>
     {/snippet}
 </Pager.Root>
 

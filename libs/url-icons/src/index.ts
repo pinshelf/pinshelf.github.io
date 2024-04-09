@@ -170,6 +170,12 @@ const DB: Map<string, string> = new Map([
     [
         'amazon.de',
         'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg'
+    ],
+
+    // Ross-Tech
+    [
+        'ross-tech.com',
+        'https://images.crunchbase.com/image/upload/c_pad,h_256,w_256,f_auto,q_auto:eco,dpr_1/xv5oveddezdjoicjgqj9'
     ]
 ])
 
@@ -195,7 +201,7 @@ export function getIconUrl(_url: string | URL): string {
     let hostname = url.hostname
 
     while (hostname.indexOf('.') !== hostname.lastIndexOf('.')) {
-        console.log(hostname)
+        // console.log(hostname)
         // Try to get icon url from db
         const url = DB.get(hostname)
         if (url !== undefined) { return url }

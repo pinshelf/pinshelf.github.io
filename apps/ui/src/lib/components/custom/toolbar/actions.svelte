@@ -4,6 +4,7 @@
     import { Gear, Pencil2 } from 'radix-icons-svelte'
     import { ModeToggle } from '$lib/components/custom/mode-toggle';
     import * as Tooltip from '$lib/components/ui/tooltip';
+    import { homescreen } from '$lib/state/data'
 
     let { activeProfile }: { activeProfile: boolean } = $props();
 
@@ -16,7 +17,18 @@
         <Tooltip.Trigger asChild let:builder>
             <Button
                 builders={[builder]}
-                variant="outline" size="icon" class="hidden md:flex"
+                variant={homescreen.editMode
+                    ? 'default'
+                    : 'outline'
+                }
+                size="icon" class="hidden md:flex"
+                on:click={() => {
+                    if (homescreen.editMode === true) {
+                        homescreen.editMode = false
+                    } else {
+                        homescreen.editMode = true
+                    }
+                }}
             >
                 <Pencil2/>
             </Button>

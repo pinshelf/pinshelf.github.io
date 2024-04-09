@@ -7,11 +7,10 @@
     import WebsearchSection from './websearch-section.svelte';
     import SearchResult from './search-result.svelte';
     import Websearch from './websearch.svelte';
-    import { type IBookmark } from '$lib/backends';
     import Fuse from 'fuse.js';
 
     // Stores //////////////////////////////////////////////////////////////////
-    import backend from '$lib/state/backend.svelte'
+    import { bookmarks } from '$lib/state/data'
 
     // State ///////////////////////////////////////////////////////////////////
     let input = $state<string>('')
@@ -21,8 +20,8 @@
     let corners = $derived(isEmpty ? '' : 'md:!rounded-b-none')
     let shadow = $derived(isEmpty ? '': 'md:shadow md:dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]')
 
-    let bookmarks = $state<IBookmark[]>([])
-    let fuse = $derived(new Fuse(bookmarks, {
+    // let bookmarks = $state<IBookmark[]>([])
+    let fuse = $derived(new Fuse(bookmarks.all, {
         keys: ['title', 'description', 'metadata.hostname']
     }))
     let searchResults = $derived(
@@ -30,28 +29,7 @@
     )
 
     // Mount ///////////////////////////////////////////////////////////////////
-    $effect(() => {
-        // Get all bookmarks
-        if (backend.data.some) {
-            const b = backend.data.val
-
-            // Send request to API
-            b.get().then((data) => {
-                if (data.err) {
-                    console.log(`error while fetching bookmarks: ${data.val}`)
-                    return
-                }
-
-                // Update state
-                bookmarks = data.val
-
-                console.log(`fetched ${bookmarks.length} bookmarks`)
-            })
-
-        } else {
-            console.log("error: backend is not set. this should not happen!")
-        }
-    })
+    $effect(() => { bookmarks.load() })
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
