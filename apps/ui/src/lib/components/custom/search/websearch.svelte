@@ -17,8 +17,9 @@
 <!-- Template -------------------------------------------------------------- -->
 
 <!-- Actual entry -->
-<div class="p-1.5 mt-2 h-12 dark:hover:bg-zinc-800 rounded-md flex flex-row items-center space-x-1"
-    on:click={() => window.open(searchUrl)}
+<a class="p-1.5 mt-2 h-12 dark:hover:bg-zinc-800 rounded-md flex flex-row items-center space-x-1"
+   href="{searchUrl}"
+   target="_blank"
 >
     <!-- Icon -->
     <div class="w-8 h-full flex flex-row items-start justify-center">
@@ -44,6 +45,6 @@
 
     <!-- Shortcut -->
     <!-- <div class="w-6 h-full bg-green-500">x</div> -->
-</div>
+</a>
 
 <!-- ----------------------------------------------------------------------- -->
