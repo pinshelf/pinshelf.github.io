@@ -78,6 +78,11 @@
                     <button class="w-full text-left" on:click={() => openLink(bookmark.url)}>
                         <div class="flex w-full flex-col gap-1">
                             <div class="flex items-center">
+                                <img 
+                                    src="https://www.google.com/s2/favicons?domain={bookmark.url}&sz=128" 
+                                    alt="Favicon" 
+                                    class="mr-4 h-16 w-16"
+                                />
                                 <div class="font-semibold">{bookmark.title}</div>
                             </div>
                             <div class="text-xs font-medium">{bookmark.description}</div>
