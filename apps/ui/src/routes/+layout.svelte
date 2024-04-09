@@ -36,9 +36,11 @@
     }
 
     async function setBackend() {
+        backend.setLoading(true);
         // Create backend for the selected profile
         if (!profiles.active) {
             console.log("cannot set backend because no profile is active")
+            backend.setLoading(false);
             return
         }
         if (profiles.active!.backend === 'xbs') {
@@ -48,6 +50,7 @@
             const xbsBackend = await XbsBackendBuilder.auth(profiles.active!.credentials)
             if (xbsBackend.err) {
                 console.log(`error: ${xbsBackend.val}`)
+                backend.setLoading(false);
                 return
             } // TODO: error handling
 
@@ -63,12 +66,14 @@
 
             if (rdBackend.err) {
                 console.log(`error: ${rdBackend.val}`)
+                backend.setLoading(false);
                 return
             } // TODO: error handling
 
             // Write backend to state
             backend.set(rdBackend.val)
         }
+        backend.setLoading(false);
     }
 
     ////////////////////////////////////////////////////////////////////////////
