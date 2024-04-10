@@ -11,7 +11,7 @@ export type Backend = (typeof BACKENDS)[number]
 
 // Interfaces //////////////////////////////////////////////////////////////////
 export interface IBookmark {
-    id?          : number,
+    id          : number,
     title       : string,
     description : string,
     note        : string,
