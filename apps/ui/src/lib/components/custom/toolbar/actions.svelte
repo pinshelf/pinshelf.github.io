@@ -25,6 +25,7 @@
                 on:click={() => {
                     if (homescreen.editMode === true) {
                         homescreen.editMode = false
+
                     } else {
                         homescreen.editMode = true
                     }

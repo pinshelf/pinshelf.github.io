@@ -1,22 +1,52 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
-    type Props = {
-        id: string,
-        title: string,
-        iconUrl: string,
-        url: string,
+    // Imports /////////////////////////////////////////////////////////////////
+    import type { App } from '$lib/types';
+    import { bookmarks } from '$lib/state/data'
+    import { getIconUrl } from 'url-icons'
 
-        // onClick?: (id: string, url: string) => void,
-        onClick?: () => void
+    // Props ///////////////////////////////////////////////////////////////////
+    type Props = {
+        app: App,
+        onClick?: (id: string, url?: string) => void
     }
 
-    let { id, title, iconUrl, url, onClick}: Props = $props()
+    let { app, onClick}: Props = $props()
+
+    // State ///////////////////////////////////////////////////////////////////
+    let title = $state<string>()
+    let url = $state<string>()
+    let iconUrl = $state<string>()
+
+    $effect(() => {
+        const { bookmarkId, overwrites } = app;
+
+        // Get bookmark
+        const result = bookmarks.findById(bookmarkId)
+        if (result.none) return;
+        const bookmark = result.unwrap();
+
+        // Set title
+        if (overwrites?.title) { title = overwrites.title }
+        else { title = bookmark.title }
+
+        // Set url
+        url = bookmark.url
+
+        // Set icon url
+        if (overwrites?.iconUrl) { iconUrl = overwrites.iconUrl }
+        else { iconUrl = getIconUrl(url) }
+    })
+
+    function _onClick() {
+        if (onClick) { onClick(app.id, url) }
+    }
 
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
 
-<div class="w-full h-full min-w-20 flex flex-col items-center justify-center">
+<div class="w-full h-full flex flex-col items-center justify-center">
     <!-- Hit Box -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -26,7 +56,7 @@
             cursor-pointer
             w-full
         "
-        on:click={onClick}
+        on:click={_onClick}
     >
         <!-- Icon -->
         <div class="

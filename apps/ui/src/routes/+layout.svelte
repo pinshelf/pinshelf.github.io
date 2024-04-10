@@ -64,8 +64,9 @@
 ">
     <!-- Content Wrapper -->
     <div class="
-        w-full max-w-5xl h-full py-8
-        overflow-auto
+        w-full max-w-5xl h-full py-4 px-2
+        overflow-x-visible
+        overflow-y-auto
     ">
         <slot/>
     </div>

@@ -31,7 +31,6 @@ async function load() {
     // Update state
     bookmarks = b.val
     console.log(`fetched ${bookmarks.length} bookmarks`)
-    console.log(bookmarks)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -29,6 +29,7 @@ export type Profile = z.infer<typeof ProfileSchema>;
 export type Homescreen = Page[];
 
 export interface App {
+    type: 'app',
     id: string,         // uuid
     bookmarkId: number  // nuber as in IBookmark!
 
@@ -38,25 +39,20 @@ export interface App {
     }
 }
 
-export interface AppGroup {
-    apps: App[]
+export interface Control {
+    type: 'control',
+    action: 'add',
 }
 
 export interface Divider {
+    type: 'divider',
     id: string // uuid
     title: string,
 }
 
 export interface Page {
     title: string,
-    grid: (AppGroup | Divider)[]
-}
-
-export function homescreenItemType(
-    item: AppGroup | Divider
-): 'appGroup' | 'divider' {
-    if ((item as AppGroup).apps) { return 'appGroup' }
-    else { return 'divider' }
+    grid: (App | Divider | Control)[]
 }
 
 ////////////////////////////////////////////////////////////////////////////////

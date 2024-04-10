@@ -1,397 +1,201 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
-    import { App as AppComponent, Divider as DividerComponent } from '$lib/components/custom/homescreen'
-    import { homescreenItemType, type AppGroup, type Divider, type App } from '$lib/types'
-    import { homescreen, bookmarks } from '$lib/state/data'
-    import { getIconUrl } from 'url-icons';
-    import gridHelp from "svelte-grid/build/helper/index.mjs";
-    import Grid from "svelte-grid";
-
-    
-    // Types ///////////////////////////////////////////////////////////////////
-    interface GridAppItem {
-        type        : 'app',
-        id          : string, // id of the item on the homescreen
-        full        : App,    // needed for rebuilding grid after edits
-
-        // Calculated properties (may be overwritten by 'overwrites')
-        calculated  : {
-            title       : string,
-            iconUrl     : string,
-            url         : string,
-        }
-    }
-
-    interface GridDividerItem {
-        type        : 'divider',
-        id          : string, // id of the item on the homescreen
-        full        : Divider,
-    }
-
-    type GridItem = (GridAppItem | GridDividerItem) & {
-        4: SvelteGridProps,
-        8: SvelteGridProps,
-    }
-
-    interface SvelteGridProps {
-        fixed           : boolean,
-        resizable       : boolean,
-        draggable       : boolean,
-        customDragger   : boolean,
-        customResizer   : boolean,
-        min             : {
-            w: number,
-            h: number,
-        },
-        max: {
-            w: number,
-            h: number
-        },
-
-        x               : number, // column
-        y               : number, // row
-        w               : number,
-        h               : number,
-    }
-
-    // Constants ///////////////////////////////////////////////////////////////
-
-    // Define responsive grid columns
-    const cols = [
-        // <= 1000  => 4 columns
-        [ 700, 4 ],
-
-        // <= 1000000 => 8 columns
-        [ 1_000_000, 8 ],
-    ]
-        .sort((a, b) => a[0] - b[0]);
+    import { Add, App as AppComponent, Divider as DividerComponent } from '$lib/components/custom/homescreen'
+    import { type Divider, type App, type Control } from '$lib/types'
+    import { homescreen } from '$lib/state/data'
+    import { flip } from 'svelte/animate'
+    import { Button } from '$lib/components/ui/button';
+    import { ChevronLeft, ChevronRight, Trash, Pencil1 } from 'radix-icons-svelte'
+    import * as Tooltip from '$lib/components/ui/tooltip';
 
     // State ///////////////////////////////////////////////////////////////////
-    let grid = $state<GridItem[]>([]);
-    let tmpHomescreenPageGrid = $state<(AppGroup | Divider)[] | undefined>();
 
+    let selectedId = $state<string | undefined>()
 
     // Effects /////////////////////////////////////////////////////////////////
 
-    // When homescreen changes, update the grid
+    // Always unset selected when edit mode changes state
     $effect(() => {
-        // Make sure homescreen and bookmarks are loaded
-        if (homescreen.pages.length === 0 || bookmarks.all.length === 0) {
-            return
-        }
-
-        // Temporary grid variable
-        const tmpGrid: GridItem[] = []
-
-        // Current row and column for the respective layout
-        const current = {
-            4: { row: 0, column: 0 },
-            8: { row: 0, column: 0 },
-        }
-
-        // Enricht the entries of the current homescreen page
-        for (const entry of homescreen.currentPage.grid) {
-            // Check the type of the entry
-            if (homescreenItemType(entry) === 'appGroup') {
-                // Type guard
-                const appGroup = entry as AppGroup;
-
-                for (const [i, app] of appGroup.apps.entries()) {
-                    // Calculate relative row and column for each layout
-                    const relative = {
-                        4: { row: Math.floor(i / 4), col: i % 4 },
-                        8: { row: Math.floor(i / 8), col: i % 8 },
-                    }
-
-                    // Get bookmark for app
-                    const bookmark = bookmarks.findById(app.bookmarkId)
-                    if (bookmark.none) {
-                        console.error(
-                            `Cannot find homescreen app bookmark:
-                            ${app.bookmarkId}`
-                        )
-                        continue
-                    }
-
-                    // Create grid configuration
-                    const gridConf = {
-                        4: gridHelp.item({
-                            x: relative[4].col,
-                            y: relative[4].row + current[4].row,
-                            w: 1,
-                            h: 1,
-                            resizable: false,
-                            draggable: homescreen.editMode,
-                            // fixed: !homescreen.editMode,
-                        }) as SvelteGridProps,
-
-                        8: gridHelp.item({
-                            x: relative[8].col,
-                            y: relative[8].row + current[8].row,
-                            w: 1,
-                            h: 1,
-                            resizable: false,
-                            draggable: homescreen.editMode,
-                            // fixed: !homescreen.editMode,
-                        }) as SvelteGridProps,
-                    }
-
-                    // Combine app and bookmark information
-                    const gridItem: GridItem = {
-                        type        : 'app',
-                        id          : app.id,
-                        full        : app,
-
-                        calculated  : {
-                            title       : (() => {
-                                if (app.overwrites?.title) {
-                                    return app.overwrites.title
-
-                                } else {
-                                    return bookmark.val.title
-                                }
-                            })(),
-
-                            iconUrl     : (() => {
-                                if (app.overwrites?.iconUrl) {
-                                    return app.overwrites.iconUrl
-
-                                } else {
-                                    return getIconUrl(bookmark.val.url)
-                                }
-                            })(),
-
-                            url: bookmark.val.url,
-                        },
-
-                        4: gridConf[4],
-                        8: gridConf[8],
-                    }
-
-                    // Add grid item to temporary grid
-                    tmpGrid.push(gridItem)
-                }
-
-                // Row correction
-                current[4].row += Math.floor(appGroup.apps.length / 4)
-                current[8].row += Math.floor(appGroup.apps.length / 8)
-
-                if (Math.floor(appGroup.apps.length / 4) > 0
-                    && appGroup.apps.length % 4 === 0
-                ) {
-                    current[4].row -= 1;
-                }
-
-                if (Math.floor(appGroup.apps.length / 8) > 0
-                    && appGroup.apps.length % 8 === 0
-                ) {
-                    current[8].row -= 1;
-                }
-            }
-
-            else if (homescreenItemType(entry) === 'divider') {
-                // Type guard
-                const divider = entry as Divider;
-
-                // Create grid configuration
-                const gridConf = {
-                    4: gridHelp.item({
-                        x: 0,
-                        y: current[4].row,
-                        w: 4,
-                        h: 1,
-                        resizable: false,
-                        draggable: homescreen.editMode,
-                        // fixed: !homescreen.editMode,
-                    }) as SvelteGridProps,
-
-                    8: gridHelp.item({
-                        x: 0,
-                        y: current[8].row,
-                        w: 8,
-                        h: 1,
-                        resizable: false,
-                        draggable: homescreen.editMode,
-                        // fixed: !homescreen.editMode,
-                    }) as SvelteGridProps,
-                }
-
-                // Create grid item
-                const gridItem: GridItem = {
-                    type        : 'divider',
-                    id          : divider.id,
-                    full        : divider,
-
-                    4: gridConf[4],
-                    8: gridConf[8],
-                }
-
-                // Add grid item to temporary grid
-                tmpGrid.push(gridItem)
-
-            }
-
-            // Inc rows
-            current[4].row += 1;
-            current[8].row += 1;
-        }
-
-        // Update grid
-        grid = tmpGrid;
-    })
-
-    // When grid changes, create temporary homescreen
-    $effect(() => {
-        // Copy grid
-        const gridItems = [...grid]
-
-        // Get current layout
-        const layout = currentNumOfCols()
-
-        // Sort items
-        gridItems.sort((a, b) => {
-            if (a[layout].y === b[layout].y) {
-                return a[layout].x - b[layout].x
-            }
-
-            return a[layout].y - b[layout].y
-        })
-
-        // Temporary storage
-        let tmpPageGrid: (AppGroup | Divider)[] = []
-        let tmpAppGroup: AppGroup = { apps: [] }
-
-        // Iterate items
-        for (const item of gridItems) {
-            if (item.type === 'app') {
-                tmpAppGroup.apps.push(item.full)
-            }
-
-            else if (item.type === 'divider') {
-                // Flush app group if filled
-                if (tmpAppGroup.apps.length > 0) {
-                    tmpPageGrid.push(tmpAppGroup)
-                    tmpAppGroup = { apps: [] }
-                }
-
-                // Add divier
-                tmpPageGrid.push(item.full)
-            }
-        }
-
-        // Flush app group if filled
-        if (tmpAppGroup.apps.length > 0) {
-            tmpPageGrid.push(tmpAppGroup)
-            tmpAppGroup = { apps: [] }
-        }
-
-        // Set temporary homescreen grid
-        tmpHomescreenPageGrid = tmpPageGrid
-    })
-
-    $effect(() => {
-        if (homescreen.pendingChange && !!tmpHomescreenPageGrid) {
-            // Apply temporary homescreen page
-            homescreen.currentPage.grid = tmpHomescreenPageGrid
-
-            // Clear temporary homescreen page
-            tmpHomescreenPageGrid = undefined
-
-            // Mark change as processed
-            homescreen.pendingChange = false;
-        }
+        homescreen.editMode;
+        selectedId = undefined;
     })
 
     // Functions ///////////////////////////////////////////////////////////////
-    function currentNumOfCols(): 4 | 8 {
-        const w = window.innerWidth
-        for (const c of cols) {
-            const width = c[0]
-            const cols = c[1]
+    function onClick(id: string, url?: string) {
+        if (homescreen.editMode) {
+            if (selectedId === id) { selectedId = undefined }
+            else { selectedId = id }
 
-            if (w <= width) { return cols as 4 | 8 }
+        } else if (url) {
+            window.open(url, '_blank')
         }
-
-        return 8
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    // const id = () => "_" + Math.random().toString(36).substr(2, 9);
-    // const cols = [
-    //     [ 1200, 6 ],
-    // ];
+    function moveSelected(direction: 'left' | 'right') {
+        if (selectedId) {
+            homescreen.moveApp(selectedId, direction)
+        }
+    }
 
-    // let items = $state([
-    //     {
-    //         6: gridHelp.item({
-    //             x: 0,
-    //             y: 0,
-    //             w: 2,
-    //             h: 2,
-    //         }) as SvelteGridProps,
-    //         id: id(),
-    //     },
+    function gridItemStyle(gridItem: App | Divider | Control) {
+        let twcss = 'w-full rounded-md '
 
-    //     {
-    //         6: gridHelp.item({
-    //             x: 2,
-    //             y: 0,
-    //             w: 2,
-    //             h: 2,
-    //         }) as SvelteGridProps,
-    //         id: id(),
-    //     },
-    // ])
+        if (gridItem.type === 'app') {
+            if (gridItem.id === selectedId) {
+                twcss += 'bg-zinc-200/50 dark:bg-zinc-800/70 '
+            }
+        }
+
+        else if (gridItem.type === 'divider') {
+            twcss += 'col-span-4 sm:col-span-8 '
+
+            if (gridItem.id === selectedId) {
+                twcss += 'bg-zinc-200/50 dark:bg-zinc-800/70 '
+            }
+        }
+
+        else if (gridItem.type === 'control') {}
+
+        return twcss.trim()
+    }
 
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
+{#if homescreen.editMode}
+<div
+    class="
+        bg-white dark:bg-zinc-900
+        w-full h-12 p-2 mt-4 mb-10
 
+        flex flex-row justify-between items-center
 
-<!-- <div class="w-full">
-    <Grid bind:items={items} rowHeight={100} let:item let:dataItem {cols}>
-        <div class="bg-slate-400 w-full h-full flex justify-center items-center">x{dataItem.id}</div>
-    </Grid>
-</div> -->
+        rounded-md
+        border-[0.5px] border-zinc-100 dark:border-zinc-700/50
+        shadow dark:shadow-[0_0.5px_2px_1px_rgba(63,63,70,0.1)]
+    "
+>
 
-<div class="w-full">
-    <Grid
-        bind:items={grid}
-        gap={[...grid].map(_ => 2)}
-        let:dataItem
-        cols={cols}
-        rowHeight=104
-        fastStart={true}
-    >
+    <!-- Left -->
+    <div class="px-2">
+        {#if selectedId}
+            <p class="font text-zinc-500 dark:text-zinc-200 line-clamp-1">
+                Modify selected Item
+            </p>
+
+        {:else}
+            <p class="font text-zinc-600 dark:text-zinc-100 line-clamp-1">
+                Select Item
+            </p>
+        {/if}
+    </div>
+
+    <!-- Right -->
+    <div class="flex flex-row space-x-3 items-center">
+        <!-- Move Left -->
+        <Tooltip.Root>
+            <Tooltip.Trigger asChild let:builder>
+                <Button
+                    builders={[builder]}
+                    variant="ghost"
+                    size="icon"
+                    on:click={() => moveSelected('left')}
+                >
+                    <ChevronLeft />
+                </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+                <p>Move Item left</p>
+            </Tooltip.Content>
+        </Tooltip.Root>
+
+        <!-- Move Right -->
+        <Tooltip.Root>
+            <Tooltip.Trigger asChild let:builder>
+                <Button
+                    builders={[builder]}
+                    variant="ghost"
+                    size="icon"
+                    on:click={() => moveSelected('right')}
+                >
+                    <ChevronRight />
+                </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+                <p>Move Item right</p>
+            </Tooltip.Content>
+        </Tooltip.Root>
+
+        <!-- Separator -->
+        <div class="h-6 w-[1px] bg-zinc-300 dark:bg-zinc-600"></div>
+
+        <!-- Edit -->
+        <Tooltip.Root>
+            <Tooltip.Trigger asChild let:builder>
+                <Button
+                    builders={[builder]}
+                    variant="ghost"
+                    size="icon"
+                    on:click={() => {}}
+                >
+                    <Pencil1 />
+                </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+                <p>Edit item</p>
+            </Tooltip.Content>
+        </Tooltip.Root>
+
+        <!-- Separator -->
+        <div class="h-6 w-[1px] bg-zinc-300 dark:bg-zinc-600"></div>
+
+        <!-- Delete -->
+        <Tooltip.Root>
+            <Tooltip.Trigger asChild let:builder>
+                <Button
+                    builders={[builder]}
+                    variant="destructive"
+                    size="icon"
+                >
+                    <Trash />
+                </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+                <p>Delete Item</p>
+            </Tooltip.Content>
+        </Tooltip.Root>
+    </div>
+</div>
+{/if}
+
+<div class="w-full grid grid-cols-4 sm:grid-cols-8 gap-2 justify-items-center mt-4">
+    {#each homescreen.currentPage.grid as gridItem (gridItem)}
         <div
-            class="
-                w-full h-full
-                flex justify-center items-center
-                relative
-            "
+            animate:flip={{ delay: 0, duration: 500 }}
+            class={gridItemStyle(gridItem)}
         >
-            {#if dataItem.type === 'app'}
+            {#if gridItem.type === 'app'}
+                {@const app = gridItem as App}
+
                 <AppComponent
-                    id={dataItem.id}
-                    title={dataItem.calculated.title}
-                    url={dataItem.calculated.url}
-                    iconUrl={dataItem.calculated.iconUrl}
-                    onClick={() => {
-                        if (homescreen.editMode === false) {
-                            // window.open(dataItem.calculated.url, '_blank')
-                        }
-                    }}
+                    {app}
+                    onClick={(id, url) => onClick(id, url)}
                 />
 
-            {:else if dataItem.type === 'divider'}
+            {:else if gridItem.type === 'divider'}
+                {@const divider = gridItem as Divider}
+
                 <DividerComponent
-                    id={dataItem.id}
-                    text={dataItem.full.title}
+                    {divider}
+                    onClick={(id, _) => onClick(id)}
                 />
+
+            {:else if gridItem.type === 'control'}
+                <Add />
             {/if}
         </div>
-    </Grid>
+    {/each}
 </div>
 
 
