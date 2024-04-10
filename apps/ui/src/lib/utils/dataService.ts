@@ -41,7 +41,7 @@ function mergeBookmarks(existingBookmarks: IBookmarkDb[], backendBookmarks: IBoo
         if (existingBookmark) {
             // Merge tags
             const mergedTags = [...new Set([...existingBookmark.tags, ...backendBookmark.tags])];
-            existingBookmark.tags = mergedTags;
+            Object.assign(existingBookmark, { ...backendBookmark, tags: mergedTags });
         } else {
             mergedBookmarks.push(backendBookmark);
         }
@@ -74,9 +74,9 @@ export async function loadDataFromBackend() {
 
 export async function saveBookmark(bookmark: IBookmarkDb) {
     try {
-        await db.bookmarks.add(bookmark);
-        console.log('Lesezeichen gespeichert:', bookmark);
-        bookmarksStore.update(bookmarks => [...bookmarks, bookmark]);
+        const id = await db.bookmarks.add(bookmark);
+        console.log('Lesezeichen gespeichert:', { ...bookmark, id });
+        bookmarksStore.update(bookmarks => [...bookmarks, { ...bookmark, id }]);
     } catch (error) {
         console.error('Fehler beim Speichern des Lesezeichens:', error);
     }
