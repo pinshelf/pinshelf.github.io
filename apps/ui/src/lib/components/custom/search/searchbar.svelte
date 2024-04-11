@@ -15,6 +15,7 @@
         SEARCH_INPUT_ID,
     } from '$lib/components/custom/search/keyboardNavigation';
     import { isDesktop } from '$lib/utils/plattformDetection';
+    import { dialogs } from '$lib/state/aux'
 
     // Stores //////////////////////////////////////////////////////////////////
     import { bookmarks } from '$lib/state/data'
@@ -26,9 +27,6 @@
     let corners = $derived(isEmpty ? '' : 'md:!rounded-b-none');
     let shadow = $derived(isEmpty ? '' : 'md:shadow md:dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]');
 
-    // Mount ///////////////////////////////////////////////////////////////////
-
-    // let bookmarks = $state<IBookmark[]>([]);
     let fuse = $derived(new Fuse(bookmarks.all, {
         keys: ['title', 'description', 'metadata.hostname', 'tags'],
     }));
@@ -46,9 +44,13 @@
 
     ////////////////////////////////////////////////////////////////////////////
     function onKeyDown(event: KeyboardEvent) {
-        // if (isInputKey(event.key) && !inputIsFocused) {
-        //     focusSearchInput()
-        // }
+        if (dialogs.active != null) {
+            return
+        }
+
+        if (isInputKey(event.key) && !inputIsFocused) {
+            focusSearchInput()
+        }
 
         if (inputIsFocused && input.length > 0 && isNavigationKey(event.key)) {
             event.preventDefault();
@@ -97,6 +99,7 @@
         bind:value={input}
         on:focusout={() => inputIsFocused = false}
         on:focus={() => inputIsFocused = true}
+        on:input={() => activeIndex = 0}
     />
 
     {#if !isEmpty}
