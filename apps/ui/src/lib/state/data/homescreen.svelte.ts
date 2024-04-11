@@ -89,7 +89,7 @@ const mock: Page[] = [
 ]
 
 // State ///////////////////////////////////////////////////////////////////////
-const pages = $state<Page[]>(mock)
+let pages = $state<Page[]>(mock)
 
 let currentPageIndex = $state<number>(0)
 const currentPage = $derived(pages[currentPageIndex])
@@ -181,17 +181,12 @@ function moveApp(id: string, direction: 'left' | 'right') {
 ////////////////////////////////////////////////////////////////////////////////
 export default {
     get pages() { return pages },
+    set pages(p: Page[]) { pages = p },
+
     get currentPage() { return currentPage },
 
     get editMode() { return editMode },
-    set editMode(m: boolean) {
-        editMode = m;
-        addButtons(m)
-        // if (!m) { pendingChange = true }
-    },
-
-    // get pendingChange() { return pendingChange },
-    // set pendingChange(c: boolean) { pendingChange = c },
+    set editMode(m: boolean) { editMode = m; addButtons(m) },
 
     setActivePage: setActivePage,
     moveApp: moveApp,

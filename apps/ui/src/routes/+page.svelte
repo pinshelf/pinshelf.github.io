@@ -63,6 +63,8 @@
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
+
+<!-- Edit Bar -->
 {#if homescreen.editMode}
 <div
     class="
@@ -80,12 +82,12 @@
     <!-- Left -->
     <div class="px-2">
         {#if selectedId}
-            <p class="font text-zinc-500 dark:text-zinc-200 line-clamp-1">
+            <p class="text-zinc-500 dark:text-zinc-200 line-clamp-1">
                 Modify selected Item
             </p>
 
         {:else}
-            <p class="font text-zinc-600 dark:text-zinc-100 line-clamp-1">
+            <p class="text-zinc-600 dark:text-zinc-100 line-clamp-1">
                 Select Item
             </p>
         {/if}

@@ -8,12 +8,13 @@
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
+    import { ManagePages } from '$lib/components/custom/homescreen'
 
     // Stores //////////////////////////////////////////////////////////////////
-    import {profiles, backend } from '$lib/state/config';
+    import { profiles, backend } from '$lib/state/config';
+    import { dialogs } from '$lib/state/aux';
 
     // State ///////////////////////////////////////////////////////////////////
-    let manageProfilesDialogOpen = $state(false)
 
     // Mount ///////////////////////////////////////////////////////////////////
     $effect(() => { backend.set() })
@@ -43,7 +44,7 @@
             profiles={profiles.all}
             activeProfile={profiles.active}
             onProfileChange={onProfileChange}
-            bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
+            bind:manageProfilesDialogOpen={dialogs.manageProfiles}
         />
     {/snippet}
 
@@ -89,13 +90,15 @@
 </Pager.Root>
 
 <!-- Dialogs -->
-<!-- Todo -->
-<Dialog bind:open={manageProfilesDialogOpen}>
+<Dialog bind:open={dialogs.manageProfiles}>
     <ManageProfiles
         profiles={profiles.all}
-        onClose={() => manageProfilesDialogOpen = false}
+        onClose={() => dialogs.manageProfiles = false}
     />
 </Dialog>
 
+<Dialog bind:open={dialogs.managePages}>
+    <ManagePages />
+</Dialog>
 
 <!-- ----------------------------------------------------------------------- -->
