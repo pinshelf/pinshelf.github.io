@@ -7,7 +7,7 @@
     import { addNewTag, deleteTag, updateTag } from '$lib/utils/tagUtils';
     import backend from '$lib/state/backend.svelte';
     import { HfInference } from '@huggingface/inference';
-    import SettingsDialog from '$lib/components/custom/settings-dialog/settings-dialog.svelte';
+    import { SettingsDialog } from '$lib/components/custom/settings-dialog';
 
     let API_TOKEN = "";
 
