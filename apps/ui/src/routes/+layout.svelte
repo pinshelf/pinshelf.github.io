@@ -8,6 +8,7 @@
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
+    import { page } from '$app/stores';
 
     // Stores //////////////////////////////////////////////////////////////////
     import profiles from '$lib/state/profiles.svelte';
@@ -23,6 +24,8 @@
     let activePage = $state<string>("Personal")
 
     let manageProfilesDialogOpen = $state(false)
+
+    const currentRoute = $derived($page.url.pathname)
 
     // Mount ///////////////////////////////////////////////////////////////////
     $effect(() => {
@@ -100,8 +103,9 @@
     {/snippet}
 
     {#snippet middle()}
-        <!-- Searchbar -->
-        <SearchBar />
+        {#if currentRoute === "/"}
+            <SearchBar />
+        {/if}
     {/snippet}
 
     {#snippet right()}
