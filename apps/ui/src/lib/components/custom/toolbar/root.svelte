@@ -1,5 +1,7 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
+    import { isPWA } from '$lib/utils/plattformDetection';
+
     type Props = {
         left: any,
         middle: any,
@@ -7,13 +9,21 @@
     }
     let { left, middle, right }: Props = $props();
 
+    const paddingClasses = $derived(isPWA() ? 'p-6 pb-10' : 'p-3');
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
 
 <!-- Wrapper - controls positioning (top/bottom) and floating (padding) -->
 <!-- zinc-700 = rgb(63,63,70) -->
-<div class="w-full p-3 sm:p-0 fixed bottom-0 sm:top-0">
+<div class={`
+        w-full
+        ${paddingClasses}
+        sm:p-0
+        fixed
+        bottom-0
+        sm:top-0
+`}>
     <!-- Toolbar Container -->
     <div
         class="
@@ -22,7 +32,7 @@
             flex items-center justify-between space-x-2 md:space-x-0
 
             rounded-md sm:rounded-none
-            border-[0.5px] sm:border-x-0 sm:border-t-0 sm:border-b-[0.5px] 
+            border-[0.5px] sm:border-x-0 sm:border-t-0 sm:border-b-[0.5px]
             border-zinc-50 dark:border-zinc-700/50
             shadow
             dark:shadow-[0_0.5px_2px_1px_rgba(63,63,70,0.3)]
