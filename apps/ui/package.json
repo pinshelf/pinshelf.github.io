@@ -10,6 +10,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"dependencies": {
+		"@huggingface/inference": "^2.6.6",
 		"bits-ui": "^0.21.2",
 		"clsx": "^2.1.0",
 		"date-fns": "^3.6.0",
@@ -23,7 +24,7 @@
 		"tailwind-variants": "^0.2.1",
 		"ts-results": "^3.3.0",
 		"ts-results-utils": "workspace:*",
-    "url-icons": "workspace:*",
+		"url-icons": "workspace:*",
 		"xbs": "workspace:*",
 		"zod": "^3.22.4"
 	},

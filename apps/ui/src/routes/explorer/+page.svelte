@@ -6,10 +6,66 @@
     import { bookmarksStore, loadData, updateBookmark } from '$lib/utils/dataService';
     import { addNewTag, deleteTag, updateTag } from '$lib/utils/tagUtils';
     import backend from '$lib/state/backend.svelte';
+    import { HfInference } from '@huggingface/inference';
+    import SettingsDialog from '$lib/components/custom/settings-dialog/settings-dialog.svelte';
+
+    let API_TOKEN = "";
+
+    onMount(() => {
+        const storedToken = localStorage.getItem("huggingFaceToken");
+        if (storedToken) {
+            API_TOKEN = storedToken;
+        }
+    });
 
     let bookmarks = $state<IBookmarkDb[]>([]);
     let tags = $state<string[]>([]);
     let selectedBookmark = $state<number | null>(null);
+
+    async function generateAITags(event: MouseEvent, bookmark: IBookmarkDb) {
+        event.stopPropagation();
+
+        try {
+            const hf = new HfInference(API_TOKEN);
+
+            const result = await hf.textGeneration({
+                model: "google/gemma-1.1-7b-it",
+                inputs: `<s>[INST] Generate 10 categories for the bookmark "${bookmark.title}". NOTHING ELSE! [/INST]`,
+                parameters: {
+                    max_new_tokens: 100,
+                    temperature: 0.7,
+                    top_p: 0.9
+                }
+            });
+
+            const generatedText = result.generated_text;
+            console.error(`Generated AI Tags for "${bookmark.title}":\n${generatedText}`);
+
+            const generatedTags = generatedText
+                .split('\n')
+                .map((line: string) => line.trim())
+                .filter((line: string) => /^\d+\.\s+/.test(line))
+                .map((line: string) => line.replace(/^\d+\.\s+/, ''));
+
+            const newTags = generatedTags.filter(tag =>
+                !bookmark.tags.some(existingTag => existingTag.toLowerCase() === tag.toLowerCase())
+            );
+
+            const updatedBookmark = {
+                ...bookmark,
+                tags: [...new Set([...bookmark.tags, ...newTags])].sort((a, b) =>
+                    a.toLowerCase().localeCompare(b.toLowerCase())
+                )
+            };
+
+            await updateBookmarksAndTags(updatedBookmark);
+
+            console.log(`Generated AI Tags for "${bookmark.title}":\n\n${newTags.join(', ')}`);
+        } catch (error) {
+            console.error("Error during tag generation:", error);
+            console.log("An error occurred during tag generation. Please check the console for more details.");
+        }
+    }
 
     function openLink(url: string) {
         window.open(url, '_blank');
@@ -68,6 +124,19 @@
 <div class="flex">
     <ScrollArea class="h-[calc(100vh-4rem)] flex-1">
         <div class="flex flex-col gap-2 p-4 pt-0">
+            <!-- New "Recommended" Card -->
+            <div class="flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent">
+                <div class="flex w-full items-center justify-between">
+                    <h2 class="text-lg font-semibold">Recommended</h2>
+                    <SettingsDialog>
+                        <button class="text-gray-500 hover:text-gray-700">
+                            <!-- Button-Text wird in settings-dialog.svelte festgelegt -->
+                        </button>
+                    </SettingsDialog>
+                </div>
+                <!-- Add recommended content here -->
+            </div>
+
             {#each bookmarks as bookmark}
                 <div
                     class={cn(
@@ -112,6 +181,12 @@
                             on:click={() => handleAddNewTag(bookmark)}
                         >
                             + New Tag
+                        </button>
+                        <button
+                            class="cursor-pointer justify-start rounded-lg border px-2 py-1 text-sm"
+                            on:click={(event) => generateAITags(event, bookmark)}
+                        >
+                            + Add with AI
                         </button>
                     </div>
                 </div>
