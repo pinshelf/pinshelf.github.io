@@ -4,7 +4,7 @@ export { RaindropBuilder } from './builder'
 // Imports /////////////////////////////////////////////////////////////////////
 import { Err, Ok, Result } from 'ts-results'
 import { getAllRaindrops, getChildCollections, getRootCollections, getUserStats } from './api'
-import { ICollection, IRaindrop, IUserStats } from './api/schemas'
+import type { ICollection, IRaindrop, IUserStats } from './api/schemas'
 
 // Class ///////////////////////////////////////////////////////////////////////
 

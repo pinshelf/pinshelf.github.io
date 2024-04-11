@@ -46,9 +46,9 @@
 
     ////////////////////////////////////////////////////////////////////////////
     function onKeyDown(event: KeyboardEvent) {
-        if (isInputKey(event.key) && !inputIsFocused) {
-            focusSearchInput()
-        }
+        // if (isInputKey(event.key) && !inputIsFocused) {
+        //     focusSearchInput()
+        // }
 
         if (inputIsFocused && input.length > 0 && isNavigationKey(event.key)) {
             event.preventDefault();

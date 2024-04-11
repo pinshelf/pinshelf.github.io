@@ -124,6 +124,7 @@
                                         <div>
                                             {#if i === 0}
                                                 <SearchResult
+                                                    active={false}
                                                     isFirst={true}
                                                     bookmark={bm}
                                                     onClick={() => {
@@ -133,6 +134,7 @@
                                                 />
                                             {:else}
                                                 <SearchResult
+                                                    active={false}
                                                     isFirst={false}
                                                     bookmark={bm}
                                                     onClick={() => {
