@@ -4,7 +4,11 @@
     import type { IBookmark } from '$lib/backends';
     import { Archive } from 'radix-icons-svelte';
     import { createEventDispatcher } from 'svelte';
-    import { ACTIVE_CLASS } from '$lib/components/custom/search/keyboardNavigation';
+    import { mode } from 'mode-watcher';
+    import {
+        ACTIVE_CLASS_DARK,
+        ACTIVE_CLASS_LIGHT,
+    } from '$lib/components/custom/search/keyboardNavigation';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -15,11 +19,10 @@
     };
     let { isFirst, bookmark, active, onClick }: Props = $props()
 
-
     // State ///////////////////////////////////////////////////////////////////
 
-    // TODO: is this dark mode compatible?
-    const activeClass = $derived(active ? ACTIVE_CLASS : '');
+    const activeClass = $mode === "dark" ? ACTIVE_CLASS_DARK : ACTIVE_CLASS_LIGHT
+    const classExtension = $derived(active ? activeClass : '');
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +42,10 @@
 <a
     on:mouseenter={() => dispatch('mouseenter')}
     on:mouseleave={() => dispatch('mouseleave')}
-    on:click={onClick}
+    on:click={(event: Event) => {
+        event.preventDefault()
+        onClick()
+    }}
     class={`
             p-1.5
             my-2
@@ -49,7 +55,7 @@
             flex-row
             items-center
             space-x-1
-            ${activeClass}
+            ${classExtension}
         `}
     href="{bookmark.url}"
     target="_blank"

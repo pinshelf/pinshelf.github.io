@@ -1,5 +1,4 @@
 export const SEARCH_INPUT_ID = 'search-input';
-
 export const ARROW_DOWN = 'ArrowDown';
 export const ARROW_UP = 'ArrowUp';
 export const ENTER = 'Enter';
@@ -25,7 +24,8 @@ export function focusSearchInput() {
     input.focus();
 }
 
-export const ACTIVE_CLASS = 'bg-zinc-800';
+export const ACTIVE_CLASS_DARK = 'bg-zinc-800';
+export const ACTIVE_CLASS_LIGHT = 'bg-zinc-100';
 
 export interface KeyboardNavigationActions {
     handleDown: () => void;
