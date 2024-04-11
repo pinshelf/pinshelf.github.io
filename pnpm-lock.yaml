@@ -38,6 +38,9 @@ importers:
 
   apps/ui:
     dependencies:
+      '@huggingface/inference':
+        specifier: ^2.6.6
+        version: 2.6.6
       bits-ui:
         specifier: ^0.21.2
         version: 0.21.2(svelte@5.0.0-next.95)
@@ -517,6 +520,11 @@ packages:
 
   /@floating-ui/utils@0.2.1:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
+    dev: false
+
+  /@huggingface/inference@2.6.6:
+    resolution: {integrity: sha512-5VEsrKj/gQ0BViUHX43VFlgbVH5OR+w6/auTQkvMqnxF3e8yK2AqAVP+zoF4dcm1DEnxUkPGeNYrxOwIUFxjuw==}
+    engines: {node: '>=18'}
     dev: false
 
   /@humanwhocodes/config-array@0.11.14:
