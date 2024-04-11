@@ -5,7 +5,7 @@ const DB_VERSION = 1;
 const BOOKMARKS_STORE_NAME = 'bookmarks';
 
 interface IBookmarkDb extends IBookmark {
-    id?: number;
+    id: number;
 }
 
 class BookmarkDatabase extends Dexie {
