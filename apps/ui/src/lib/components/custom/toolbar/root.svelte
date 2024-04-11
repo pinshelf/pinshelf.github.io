@@ -21,9 +21,9 @@
         ${paddingClasses}
         sm:p-0
         fixed
-        bottom-0
-        sm:top-0
-`}>
+        bottom-0 top-auto sm:top-0 sm:bottom-auto
+        z-10
+    `}>
     <!-- Toolbar Container -->
     <div
         class="

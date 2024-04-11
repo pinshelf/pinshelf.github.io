@@ -1,30 +1,41 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
     import { Badge } from '$lib/components/ui/badge'
+    import { homescreen } from '$lib/state/data'
 
-    type Props = {
-        pages: { name: string }[],
-        activePage: string,
-    }
-    let { pages, activePage = $bindable() }: Props = $props();
+    let cursor = $state<string>('cursor-pointer')
+
+    $effect(() => {
+        cursor = homescreen.editMode === false
+            ? 'cursor-pointer'
+            : 'cursor-not-allowed'
+    })
 
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
 
-{#each pages as page}
-    {#if page.name === activePage}
+{#each homescreen.pages as page, index}
+    {#if page.title === homescreen.currentPage.title}
         <Badge
             variant="default"
-            class="cursor-pointer"
-            onclick={() => activePage = page.name}
-        >{page.name}</Badge>
+            class={cursor}
+            onclick={() => {
+                if (homescreen.editMode === false) {
+                    homescreen.setActivePage(index)
+                }
+            }}
+        >{page.title}</Badge>
     {:else}
         <Badge
             variant="secondary"
-            class="cursor-pointer"
-            onclick={() => activePage = page.name}
-        >{page.name}</Badge>
+            class={cursor}
+            onclick={() => {
+                if (homescreen.editMode === false) {
+                    homescreen.setActivePage(index)
+                }
+            }}
+        >{page.title}</Badge>
     {/if}
     
 {/each}

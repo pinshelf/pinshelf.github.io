@@ -1,23 +1,23 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
+    import type { IBookmark } from '$lib/backends';
     import { Input } from '$lib/components/ui/input';
     import { fade } from 'svelte/transition';
     import ResultsSection from './results-section.svelte';
     import WebsearchSection from './websearch-section.svelte';
     import SearchResult from './search-result.svelte';
     import Websearch from './websearch.svelte';
-    import { type IBookmark } from '$lib/backends';
     import Fuse from 'fuse.js';
     import {
         evaluateNavigationKey, focusSearchInput, isInputKey,
         isNavigationKey,
         SEARCH_INPUT_ID,
     } from '$lib/components/custom/search/keyboardNavigation';
+    import { isDesktop } from '$lib/utils/plattformDetection';
 
     // Stores //////////////////////////////////////////////////////////////////
-    import backend from '$lib/state/backend.svelte';
-    import { isDesktop } from '$lib/utils/plattformDetection';
+    import { bookmarks } from '$lib/state/data'
 
     // State ///////////////////////////////////////////////////////////////////
     let input = $state<string>('');
@@ -26,11 +26,13 @@
     let corners = $derived(isEmpty ? '' : 'md:!rounded-b-none');
     let shadow = $derived(isEmpty ? '' : 'md:shadow md:dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]');
 
-    let bookmarks = $state<IBookmark[]>([]);
-    let fuse = $derived(new Fuse(bookmarks, {
+    // Mount ///////////////////////////////////////////////////////////////////
+
+    // let bookmarks = $state<IBookmark[]>([]);
+    let fuse = $derived(new Fuse(bookmarks.all, {
         keys: ['title', 'description', 'metadata.hostname', 'tags'],
     }));
-    let searchResults = $derived<IBookmark>(
+    let searchResults = $derived<IBookmark[]>(
         fuse.search(input).slice(0, 4).map(x => x.item),
     );
     const searchUrl = $derived(`https://duckduckgo.org?q=${encodeURI(input)}`);
@@ -39,28 +41,14 @@
     let inputIsFocused = $state<boolean>(false);
 
     // Mount ///////////////////////////////////////////////////////////////////
-    $effect(() => {
-        // Get all bookmarks
-        if (!backend.loading && backend.data.some) {
-            const bookMarkReader = backend.data.val;
+    $effect(() => { bookmarks.load() })
 
-            // Send request to API
-            bookMarkReader.get().then((data) => {
-                if (data.ok) {
-                    // Update state
-                    bookmarks = data.val;
-                } else {
-                    console.error(`error while fetching bookmarks: ${data.val}`);
-                }
-            });
-        }
-    });
 
     ////////////////////////////////////////////////////////////////////////////
     function onKeyDown(event: KeyboardEvent) {
-        if (isInputKey(event.key) && !inputIsFocused) {
-            focusSearchInput()
-        }
+        // if (isInputKey(event.key) && !inputIsFocused) {
+        //     focusSearchInput()
+        // }
 
         if (inputIsFocused && input.length > 0 && isNavigationKey(event.key)) {
             event.preventDefault();

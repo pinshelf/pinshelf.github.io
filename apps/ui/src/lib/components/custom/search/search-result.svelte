@@ -7,11 +7,18 @@
     import { ACTIVE_CLASS } from '$lib/components/custom/search/keyboardNavigation';
 
     // Props ///////////////////////////////////////////////////////////////////
-    type Props = { isFirst: boolean, bookmark: IBookmark, active: boolean };
-    const { isFirst, bookmark, active }: Props = $props();
+    type Props = {
+        isFirst?: boolean,
+        bookmark: IBookmark,
+        active  : boolean,
+        onClick?: () => void,
+    };
+    let { isFirst, bookmark, active, onClick }: Props = $props()
+
 
     // State ///////////////////////////////////////////////////////////////////
 
+    // TODO: is this dark mode compatible?
     const activeClass = $derived(active ? ACTIVE_CLASS : '');
 
     ////////////////////////////////////////////////////////////////////////////
@@ -27,9 +34,12 @@
     </div>
 {/if}
 
+
+<!-- Actual search entry -->
 <a
     on:mouseenter={() => dispatch('mouseenter')}
     on:mouseleave={() => dispatch('mouseleave')}
+    on:click={onClick}
     class={`
             p-1.5
             my-2

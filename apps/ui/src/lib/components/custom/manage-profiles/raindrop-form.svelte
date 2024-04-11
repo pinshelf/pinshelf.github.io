@@ -4,7 +4,7 @@
     import { Label } from '$lib/components/ui/label';
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
-    import profiles from '$lib/state/profiles.svelte';
+    import { profiles } from '$lib/state/config';
     import { RaindropBackendBuilder } from '$lib/backends';
 
     // Props ///////////////////////////////////////////////////////////////////
