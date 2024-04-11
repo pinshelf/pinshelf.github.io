@@ -16,3 +16,6 @@ Deployment notes: [Deployment](./docs/DEPLOYMENT.md)
 ## How to add shadcn-ui components
 1.  Make sure to be in `apps/ui` (else `cd apps/ui`)
 2.  `pnpm dlx shadcn-svelte@latest add <component_name>`
+3.  Execute global replace in the whole repository:
+    -   from: `$lib/utils.ts`
+    -   to  : `$lib/utils`
