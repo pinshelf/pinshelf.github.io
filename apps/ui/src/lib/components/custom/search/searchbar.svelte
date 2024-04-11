@@ -9,15 +9,19 @@
     import Websearch from './websearch.svelte';
     import { type IBookmark } from '$lib/backends';
     import Fuse from 'fuse.js';
-    import { evaluateKeypress, keyIsOnInterest } from '$lib/components/custom/search/keyboardNavigation';
+    import {
+        evaluateNavigationKey, focusSearchInput, isInputKey,
+        isNavigationKey,
+        SEARCH_INPUT_ID,
+    } from '$lib/components/custom/search/keyboardNavigation';
 
     // Stores //////////////////////////////////////////////////////////////////
     import backend from '$lib/state/backend.svelte';
+    import { isDesktop } from '$lib/utils/plattformDetection';
 
     // State ///////////////////////////////////////////////////////////////////
     let input = $state<string>('');
     let isEmpty = $derived(input.length === 0);
-    let autofocus = $state<boolean>(false);
 
     let corners = $derived(isEmpty ? '' : 'md:!rounded-b-none');
     let shadow = $derived(isEmpty ? '' : 'md:shadow md:dark:shadow-[0_0.5px_1px_1px_rgba(63,63,70,0.3)]');
@@ -54,9 +58,13 @@
 
     ////////////////////////////////////////////////////////////////////////////
     function onKeyDown(event: KeyboardEvent) {
-        if (inputIsFocused && input.length > 0 && keyIsOnInterest(event)) {
+        if (isInputKey(event.key) && !inputIsFocused) {
+            focusSearchInput()
+        }
+
+        if (inputIsFocused && input.length > 0 && isNavigationKey(event.key)) {
             event.preventDefault();
-            evaluateKeypress(event, activeIndex, searchResults.length, {
+            evaluateNavigationKey(event.key, activeIndex, searchResults.length, {
                 handleDown: () => activeIndex++,
                 handleUp: () => activeIndex--,
                 handleEnter: () => {
@@ -86,6 +94,7 @@
     "
 >
     <Input
+        id={SEARCH_INPUT_ID}
         class={`
             h-9
             shadow-none
@@ -96,7 +105,7 @@
         `}
         placeholder="Search"
         spellcheck={false}
-        autofocus={autofocus}
+        autofocus={isDesktop()}
         bind:value={input}
         on:focusout={() => inputIsFocused = false}
         on:focus={() => inputIsFocused = true}
