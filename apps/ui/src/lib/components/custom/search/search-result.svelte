@@ -1,38 +1,58 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
-    import type { IBookmark } from "$lib/backends";
-    import { Archive } from 'radix-icons-svelte'
+    import type { IBookmark } from '$lib/backends';
+    import { Archive } from 'radix-icons-svelte';
+    import { createEventDispatcher } from 'svelte';
+    import { ACTIVE_CLASS } from '$lib/components/custom/search/keyboardNavigation';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
         isFirst?: boolean,
         bookmark: IBookmark,
+        active  : boolean,
         onClick?: () => void,
     };
-    let { isFirst, bookmark, onClick }: Props = $props()
+    let { isFirst, bookmark, active, onClick }: Props = $props()
+
 
     // State ///////////////////////////////////////////////////////////////////
 
+    // TODO: is this dark mode compatible?
+    const activeClass = $derived(active ? ACTIVE_CLASS : '');
 
     ////////////////////////////////////////////////////////////////////////////
+
+    const dispatch = createEventDispatcher();
 </script>
 
 <!-- Template -------------------------------------------------------------- -->
 
-<!-- Divider (don't show on the first search entry) -->
 {#if !isFirst}
     <div class="w-full flex items-center justify-center">
         <div class="w-full border-t"></div>
     </div>
 {/if}
 
+
 <!-- Actual search entry -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-    class="p-1.5 my-2 h-24 dark:hover:bg-zinc-800 rounded-md flex flex-row items-center space-x-1"
+<a
+    on:mouseenter={() => dispatch('mouseenter')}
+    on:mouseleave={() => dispatch('mouseleave')}
     on:click={onClick}
+    class={`
+            p-1.5
+            my-2
+            h-24
+            rounded-md
+            flex
+            flex-row
+            items-center
+            space-x-1
+            ${activeClass}
+        `}
+    href="{bookmark.url}"
+    target="_blank"
 >
     <!-- Icon -->
     <div class="w-8 h-full flex flex-row items-start justify-center">
@@ -56,7 +76,7 @@
 
             <!-- Path/Directory -->
             <div class="h-fit flex flex-row items-start space-x-1.5">
-                <Archive class="text-zinc-500 dark:text-zinc-400"/>
+                <Archive class="text-zinc-500 dark:text-zinc-400" />
                 <p class="text-[12px] font-mono line-clamp-1 text-zinc-500 dark:text-zinc-400 select-none">
                     {bookmark.metadata.path.join(' / ') || '/'}
                 </p>
@@ -79,9 +99,6 @@
             </div>
         {/if}
     </div>
-
-    <!-- Shortcut -->
-    <!-- <div class="w-6 h-full bg-green-500">x</div> -->
-</div>
+</a>
 
 <!-- ----------------------------------------------------------------------- -->

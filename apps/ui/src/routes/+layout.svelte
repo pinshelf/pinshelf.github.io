@@ -9,12 +9,15 @@
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
     import { ManagePages, EditApp, AddItemDialog, EditDivider } from '$lib/components/custom/homescreen'
+    import { page } from '$app/stores';
 
     // Stores //////////////////////////////////////////////////////////////////
     import { profiles, backend } from '$lib/state/config';
     import { dialogs } from '$lib/state/aux';
 
     // State ///////////////////////////////////////////////////////////////////
+
+    const currentRoute = $derived($page.url.pathname)
 
     // Mount ///////////////////////////////////////////////////////////////////
     $effect(() => { backend.set() })
@@ -49,8 +52,9 @@
     {/snippet}
 
     {#snippet middle()}
-        <!-- Searchbar -->
-        <SearchBar />
+        {#if currentRoute === "/"}
+            <SearchBar />
+        {/if}
     {/snippet}
 
     {#snippet right()}
