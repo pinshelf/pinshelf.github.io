@@ -8,7 +8,7 @@
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
-    import { ManagePages } from '$lib/components/custom/homescreen'
+    import { ManagePages, EditApp, AddApp } from '$lib/components/custom/homescreen'
 
     // Stores //////////////////////////////////////////////////////////////////
     import { profiles, backend } from '$lib/state/config';
@@ -99,6 +99,14 @@
 
 <Dialog bind:open={dialogs.managePages}>
     <ManagePages />
+</Dialog>
+
+<Dialog bind:open={dialogs.editApp}>
+    <EditApp />
+</Dialog>
+
+<Dialog bind:open={dialogs.addApp}>
+    <AddApp />
 </Dialog>
 
 <!-- ----------------------------------------------------------------------- -->

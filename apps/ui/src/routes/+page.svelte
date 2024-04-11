@@ -8,24 +8,29 @@
     import { Button } from '$lib/components/ui/button';
     import { ChevronLeft, ChevronRight, Trash, Pencil1 } from 'radix-icons-svelte'
     import * as Tooltip from '$lib/components/ui/tooltip';
+    import { dialogs } from '$lib/state/aux'
+    import Dialog from '../lib/components/custom/dialog/dialog.svelte';
 
     // State ///////////////////////////////////////////////////////////////////
 
-    let selectedId = $state<string | undefined>()
 
     // Effects /////////////////////////////////////////////////////////////////
 
     // Always unset selected when edit mode changes state
     $effect(() => {
         homescreen.editMode;
-        selectedId = undefined;
+        homescreen.selectedForEdit = undefined;
     })
 
     // Functions ///////////////////////////////////////////////////////////////
     function onClick(id: string, url?: string) {
         if (homescreen.editMode) {
-            if (selectedId === id) { selectedId = undefined }
-            else { selectedId = id }
+            if (homescreen.selectedForEdit === id) {
+                homescreen.selectedForEdit = undefined
+            }
+            else {
+                homescreen.selectedForEdit = id
+            }
 
         } else if (url) {
             window.open(url, '_blank')
@@ -33,8 +38,8 @@
     }
 
     function moveSelected(direction: 'left' | 'right') {
-        if (selectedId) {
-            homescreen.moveApp(selectedId, direction)
+        if (homescreen.selectedForEdit) {
+            homescreen.moveApp(homescreen.selectedForEdit, direction)
         }
     }
 
@@ -42,7 +47,7 @@
         let twcss = 'w-full rounded-md '
 
         if (gridItem.type === 'app') {
-            if (gridItem.id === selectedId) {
+            if (gridItem.id === homescreen.selectedForEdit) {
                 twcss += 'bg-zinc-200/50 dark:bg-zinc-800/70 '
             }
         }
@@ -50,7 +55,7 @@
         else if (gridItem.type === 'divider') {
             twcss += 'col-span-4 sm:col-span-8 '
 
-            if (gridItem.id === selectedId) {
+            if (gridItem.id === homescreen.selectedForEdit) {
                 twcss += 'bg-zinc-200/50 dark:bg-zinc-800/70 '
             }
         }
@@ -58,6 +63,14 @@
         else if (gridItem.type === 'control') {}
 
         return twcss.trim()
+    }
+
+    function onEdit() {
+        dialogs.active = 'editApp'
+    }
+
+    function onAdd() {
+        dialogs.active = 'addApp'
     }
 
 </script>
@@ -81,7 +94,7 @@
 
     <!-- Left -->
     <div class="px-2">
-        {#if selectedId}
+        {#if homescreen.selectedForEdit}
             <p class="text-zinc-500 dark:text-zinc-200 line-clamp-1">
                 Modify selected Item
             </p>
@@ -139,7 +152,7 @@
                     builders={[builder]}
                     variant="ghost"
                     size="icon"
-                    on:click={() => {}}
+                    on:click={onEdit}
                 >
                     <Pencil1 />
                 </Button>
@@ -194,7 +207,7 @@
                 />
 
             {:else if gridItem.type === 'control'}
-                <Add />
+                <Add onClick={onAdd}/>
             {/if}
         </div>
     {/each}

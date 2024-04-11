@@ -31,7 +31,7 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
-            class="w-full max-w-[640px] max-h-full my-16"
+            class="w-full max-w-[640px] max-h-full "
             on:click={(e) => e.stopPropagation()}
         >
             {@render children()}

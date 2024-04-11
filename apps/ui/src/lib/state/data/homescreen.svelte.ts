@@ -86,6 +86,31 @@ const mock: Page[] = [
             },
         ],
     },
+
+    {
+        title: 'a',
+        grid: [],
+    },
+
+    {
+        title: 'b',
+        grid: [],
+    },
+
+    {
+        title: 'c',
+        grid: [],
+    },
+
+    {
+        title: 'd',
+        grid: [],
+    },
+
+    {
+        title: 'e',
+        grid: [],
+    },
 ]
 
 // State ///////////////////////////////////////////////////////////////////////
@@ -95,6 +120,7 @@ let currentPageIndex = $state<number>(0)
 const currentPage = $derived(pages[currentPageIndex])
 
 let editMode = $state<boolean>(false);
+let selectedForEdit = $state<string | undefined>()
 
 // let pendingChange = $state<boolean>(false)
 
@@ -187,6 +213,9 @@ export default {
 
     get editMode() { return editMode },
     set editMode(m: boolean) { editMode = m; addButtons(m) },
+
+    get selectedForEdit() { return selectedForEdit },
+    set selectedForEdit(s: string | undefined){ selectedForEdit = s },
 
     setActivePage: setActivePage,
     moveApp: moveApp,

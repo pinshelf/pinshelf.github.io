@@ -7,7 +7,7 @@ type Dialog = (typeof DIALOGS)[number];
 // State Initialization ////////////////////////////////////////////////////////
 const dialogs = $state<{ [key in Dialog]: boolean }>({
     manageProfiles  : false,
-    managePages     : true,
+    managePages     : false,
     editApp         : false,
     addApp          : false,
 });
