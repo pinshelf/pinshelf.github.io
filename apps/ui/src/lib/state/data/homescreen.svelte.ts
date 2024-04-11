@@ -5,117 +5,122 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Mock Data ///////////////////////////////////////////////////////////////////
 // TODO: remove
-const mock: Page[] = [
-    {
-        title: 'Start',
-        grid: [
-            // Group
-            {
-                type: 'app',
-                id: '0',
-                bookmarkId: 11,
-                overwrites: {
-                    title: 'Ross-Tech'
-                }
-            },
-            {
-                type: 'app',
-                id: '1',
-                bookmarkId: 12,
-                // overwrites: {},
-            },
+// const mock: Page[] = [
+//     {
+//         title: 'Start',
+//         grid: [
+//             // Group
+//             {
+//                 type: 'app',
+//                 id: '0',
+//                 bookmarkId: 11,
+//                 overwrites: {
+//                     title: 'Ross-Tech'
+//                 }
+//             },
+//             {
+//                 type: 'app',
+//                 id: '1',
+//                 bookmarkId: 12,
+//                 // overwrites: {},
+//             },
 
-            {
-                type: 'app',
-                id: '352434',
-                bookmarkId: 12,
-                // overwrites: {},
-            },
+//             {
+//                 type: 'app',
+//                 id: '352434',
+//                 bookmarkId: 12,
+//                 // overwrites: {},
+//             },
 
-            {
-                type: 'app',
-                id: '352323',
-                bookmarkId: 12,
-                // overwrites: {},
-            },
+//             {
+//                 type: 'app',
+//                 id: '352323',
+//                 bookmarkId: 12,
+//                 // overwrites: {},
+//             },
 
-            // Divider
-            {
-                type: 'divider',
-                id: '100',
-                title: 'Internet Search'
-            },
+//             // Divider
+//             {
+//                 type: 'divider',
+//                 id: '100',
+//                 title: 'Internet Search'
+//             },
 
-            // Group
-            {
-                type: 'app',
-                id: '2',
-                bookmarkId: 3,
-            },
-            {
-                type: 'app',
-                id: '3',
-                bookmarkId: 9,
-                overwrites: {
-                    title: 'DDG 2',
-                }
-            },
-            {
-                type: 'app',
-                id: '4',
-                bookmarkId: 13,
-            },
-        ]
-    },
+//             // Group
+//             {
+//                 type: 'app',
+//                 id: '2',
+//                 bookmarkId: 3,
+//             },
+//             {
+//                 type: 'app',
+//                 id: '3',
+//                 bookmarkId: 9,
+//                 overwrites: {
+//                     title: 'DDG 2',
+//                 }
+//             },
+//             {
+//                 type: 'app',
+//                 id: '4',
+//                 bookmarkId: 13,
+//             },
+//         ]
+//     },
 
-    {
-        title: 'Second',
-        grid: [
-            // Divider
-            {
-                type: 'divider',
-                id: '123',
-                title: 'I\'m a divider',
-            },
+//     {
+//         title: 'Second',
+//         grid: [
+//             // Divider
+//             {
+//                 type: 'divider',
+//                 id: '123',
+//                 title: 'I\'m a divider',
+//             },
 
-            // Group
-            {
-                type: 'app',
-                id: '2',
-                bookmarkId: 3,
-            },
-        ],
-    },
+//             // Group
+//             {
+//                 type: 'app',
+//                 id: '2',
+//                 bookmarkId: 3,
+//             },
+//         ],
+//     },
 
-    {
-        title: 'a',
-        grid: [],
-    },
+//     {
+//         title: 'a',
+//         grid: [],
+//     },
 
-    {
-        title: 'b',
-        grid: [],
-    },
+//     {
+//         title: 'b',
+//         grid: [],
+//     },
 
-    {
-        title: 'c',
-        grid: [],
-    },
+//     {
+//         title: 'c',
+//         grid: [],
+//     },
 
-    {
-        title: 'd',
-        grid: [],
-    },
+//     {
+//         title: 'd',
+//         grid: [],
+//     },
 
-    {
-        title: 'e',
-        grid: [],
-    },
-]
+//     {
+//         title: 'e',
+//         grid: [],
+//     },
+// ]
 
 // State ///////////////////////////////////////////////////////////////////////
 // Storeas all pages
-let pages = $state<Page[]>(mock)
+let pages = $state<Page[]>([
+    {
+        title: 'Default',
+        grid: [],
+    }
+])
 
 // Current page index and current page define the curently active page
 // This is used for showing the correct page as well as editing items.
@@ -254,6 +259,7 @@ export default {
     set pages(p: Page[]) { pages = p },
 
     get currentPage() { return currentPage },
+    get currentPageIndex() { return currentPageIndex },
 
     get editMode() { return editMode },
     set editMode(m: boolean) { editMode = m; controls(m) },

@@ -114,7 +114,25 @@
     function onDelete() {
         if (!selection) { return }
 
-        homescreen.pages = homescreen.pages.filter(p => p.title !== selection)
+        // Get index of currently active page
+        const currPageIndex = homescreen.currentPageIndex;
+
+        // Get index of the page that is deleted
+        const deletionIndex = homescreen.pages
+            .findIndex(p => p.title === selection)
+
+        // Delete page
+        // homescreen.pages = homescreen.pages.filter(p => p.title !== selection)
+        homescreen.pages.splice(deletionIndex, 1)
+
+        // Correct page index
+        if (deletionIndex < currPageIndex) {
+            homescreen.setActivePage(currPageIndex - 1)
+        }
+
+        if (currPageIndex > homescreen.pages.length - 1) {
+            homescreen.setActivePage(homescreen.pages.length - 1)
+        }
     }
 
     function onClickPage(pageTitle: string) {
