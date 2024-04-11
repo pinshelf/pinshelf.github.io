@@ -57,7 +57,7 @@
 
             const result = await hf.textGeneration({
                 model: "google/gemma-1.1-7b-it",
-                inputs: `<s>[INST] Generate 10 categories for the bookmark "${bookmark.title}". NOTHING ELSE! [/INST]`,
+                inputs: `<s>[INST] Generate 10 single-word categories for the bookmark "${bookmark.title}". NOTHING ELSE! [/INST]`,
                 parameters: {
                     max_new_tokens: 100,
                     temperature: 0.7,
@@ -71,8 +71,8 @@
             const generatedTags = generatedText
                 .split('\n')
                 .map((line: string) => line.trim())
-                .filter((line: string) => /^\d+\.\s+/.test(line))
-                .map((line: string) => line.replace(/^\d+\.\s+/, ''));
+                .filter((line: string) => /^(\d+\.|-)/.test(line))
+                .map((line: string) => line.replace(/^(\d+\.|-)\s*/, '').trim());
 
             const newTags = generatedTags.filter(tag =>
                 !bookmark.tags.some(existingTag => existingTag.toLowerCase() === tag.toLowerCase())
