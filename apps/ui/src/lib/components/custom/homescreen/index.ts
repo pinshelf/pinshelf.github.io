@@ -4,7 +4,8 @@ import Add from './add.svelte'
 
 import ManagePages from './manage-pages.svelte'
 import EditApp from './edit-app.svelte'
-import AddApp from './add-app.svelte'
+import AddItemDialog from './add-item-dialog.svelte'
+import EditDivider from './edit-divider.svelte'
 
 export {
     App,
@@ -12,5 +13,6 @@ export {
     Add,
     ManagePages,
     EditApp,
-    AddApp,
+    AddItemDialog,
+    EditDivider,
 }

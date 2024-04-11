@@ -8,7 +8,7 @@
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
-    import { ManagePages, EditApp, AddApp } from '$lib/components/custom/homescreen'
+    import { ManagePages, EditApp, AddItemDialog, EditDivider } from '$lib/components/custom/homescreen'
 
     // Stores //////////////////////////////////////////////////////////////////
     import { profiles, backend } from '$lib/state/config';
@@ -105,8 +105,13 @@
     <EditApp />
 </Dialog>
 
-<Dialog bind:open={dialogs.addApp}>
-    <AddApp />
+<Dialog bind:open={dialogs.editDivider}>
+    <EditDivider />
+</Dialog>
+
+
+<Dialog bind:open={dialogs.addItem}>
+    <AddItemDialog />
 </Dialog>
 
 <!-- ----------------------------------------------------------------------- -->

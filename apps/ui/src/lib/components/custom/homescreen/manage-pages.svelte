@@ -208,7 +208,7 @@
                         <Button
                             disabled={editBtnDisabled}
                             builders={[builder]}
-                            variant={editMode ? 'default' : 'ghost'}
+                            variant="ghost"
                             size="icon"
                             on:click={onAdd}
                         >
@@ -308,7 +308,7 @@
 
     </Card.Content>
 
-    <Card.Footer class="flex flex-row-reverse pt-4">
+    <Card.Footer class="flex flex-row-reverse pt-4 pr-7">
         <Button onclick={() => dialogs.managePages = false}>Close</Button>
     </Card.Footer>
 

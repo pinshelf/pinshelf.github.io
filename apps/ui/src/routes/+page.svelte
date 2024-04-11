@@ -9,7 +9,6 @@
     import { ChevronLeft, ChevronRight, Trash, Pencil1 } from 'radix-icons-svelte'
     import * as Tooltip from '$lib/components/ui/tooltip';
     import { dialogs } from '$lib/state/aux'
-    import Dialog from '../lib/components/custom/dialog/dialog.svelte';
 
     // State ///////////////////////////////////////////////////////////////////
 
@@ -66,11 +65,36 @@
     }
 
     function onEdit() {
-        dialogs.active = 'editApp'
+        // Get selected item
+        let item: App | Divider | undefined;
+        for (const x of homescreen.currentPage.grid) {
+            if (x.type === 'control') { continue }
+            if (x.id !== homescreen.selectedForEdit) { continue }
+
+            item = x;
+            break;
+        }
+
+        if (!item) { return }
+
+        if (item.type === 'app') {
+            dialogs.active = 'editApp'
+        }
+        else if (item.type === 'divider') {
+            dialogs.active = 'editDivider'
+        }
     }
 
-    function onAdd() {
-        dialogs.active = 'addApp'
+    function onAdd(id: string | undefined) {
+        // Set control id
+        homescreen.controlId = id
+
+        // Open dialog
+        dialogs.active = 'addItem'
+    }
+
+    function onDelete() {
+        homescreen.removeItem()
     }
 
 </script>
@@ -112,6 +136,7 @@
         <Tooltip.Root>
             <Tooltip.Trigger asChild let:builder>
                 <Button
+                    disabled={!homescreen.selectedForEdit}
                     builders={[builder]}
                     variant="ghost"
                     size="icon"
@@ -129,6 +154,7 @@
         <Tooltip.Root>
             <Tooltip.Trigger asChild let:builder>
                 <Button
+                    disabled={!homescreen.selectedForEdit}
                     builders={[builder]}
                     variant="ghost"
                     size="icon"
@@ -149,6 +175,7 @@
         <Tooltip.Root>
             <Tooltip.Trigger asChild let:builder>
                 <Button
+                    disabled={!homescreen.selectedForEdit}
                     builders={[builder]}
                     variant="ghost"
                     size="icon"
@@ -169,9 +196,11 @@
         <Tooltip.Root>
             <Tooltip.Trigger asChild let:builder>
                 <Button
+                    disabled={!homescreen.selectedForEdit}
                     builders={[builder]}
                     variant="destructive"
                     size="icon"
+                    on:click={onDelete}
                 >
                     <Trash />
                 </Button>
@@ -207,7 +236,8 @@
                 />
 
             {:else if gridItem.type === 'control'}
-                <Add onClick={onAdd}/>
+                {@const control = gridItem as Control}
+                <Add {control} onClick={onAdd}/>
             {/if}
         </div>
     {/each}

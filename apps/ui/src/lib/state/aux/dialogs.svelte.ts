@@ -1,7 +1,7 @@
 // Imports /////////////////////////////////////////////////////////////////////
 
 // Constants ///////////////////////////////////////////////////////////////////
-const DIALOGS = ['manageProfiles', 'managePages', 'editApp', 'addApp'] as const;
+const DIALOGS = ['manageProfiles', 'managePages', 'editApp', 'editDivider', 'addItem'] as const;
 type Dialog = (typeof DIALOGS)[number];
 
 // State Initialization ////////////////////////////////////////////////////////
@@ -9,7 +9,8 @@ const dialogs = $state<{ [key in Dialog]: boolean }>({
     manageProfiles  : false,
     managePages     : false,
     editApp         : false,
-    addApp          : false,
+    editDivider     : false,
+    addItem         : false,
 });
 
 // Functions ///////////////////////////////////////////////////////////////////
@@ -68,9 +69,15 @@ export default {
         else { setActive(null) }
     },
 
-    get addApp() { return dialogs.addApp },
-    set addApp(b: boolean) {
-        if (b) { setActive('addApp') }
+    get editDivider() { return dialogs.editDivider },
+    set editDivider(b: boolean) {
+        if (b) { setActive('editDivider') }
+        else { setActive(null) }
+    },
+
+    get addItem() { return dialogs.addItem },
+    set addItem(b: boolean) {
+        if (b) { setActive('addItem') }
         else { setActive(null) }
     },
 }

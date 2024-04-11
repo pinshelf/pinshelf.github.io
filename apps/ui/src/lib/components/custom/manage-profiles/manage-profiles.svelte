@@ -98,7 +98,7 @@
 
     </Card.Content>
 
-    <Card.Footer class="flex flex-row-reverse pt-4">
+    <Card.Footer class="flex flex-row-reverse pt-4 pr-7">
         <Button onclick={onClose}>Close</Button>
     </Card.Footer>
 

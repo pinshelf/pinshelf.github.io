@@ -41,6 +41,7 @@ export interface App {
 
 export interface Control {
     type: 'control',
+    id: string,
     action: 'add',
 }
 

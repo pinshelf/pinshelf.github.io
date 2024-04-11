@@ -3,134 +3,96 @@
     // Imports /////////////////////////////////////////////////////////////////
     import * as Card from '$lib/components/ui/card';
     import { Button } from '$lib/components/ui/button';
-    import * as Tooltip from '$lib/components/ui/tooltip';
-    import { flip } from 'svelte/animate'
     import { Input } from "$lib/components/ui/input";
-
-    import { ChevronUp, ChevronDown, Pencil1, Trash, Plus } from 'radix-icons-svelte'
+    import { Label } from '$lib/components/ui/label';
 
     // Stores //////////////////////////////////////////////////////////////////
     import { dialogs } from '$lib/state/aux';
-    import { homescreen } from '$lib/state/data';
+    import { bookmarks, homescreen } from '$lib/state/data';
+    import { type App } from '$lib/types';
+    import { type IBookmark } from '$lib/backends';
+    import { getIconUrl } from 'url-icons';
 
     // Props ///////////////////////////////////////////////////////////////////
 
 
     // State ///////////////////////////////////////////////////////////////////
-    let selection       = $state<string | undefined>()
-    let editMode        = $state<boolean>(false)
-    let editBtnDisabled = $state<boolean>(false)
-    let input           = $state<string | undefined>()
-    let deleteBtnDisabled = $derived(homescreen.pages.length < 2)
+    let app = $state<App | undefined>()
+    let bookmark = $state<IBookmark | undefined>()
+
+    let title = $state<string>()
+    let url = $state<string>()
+    let iconUrl = $state<string>()
+
+    let titleInput = $state<string>()
+    let iconUrlInput = $state<string>()
 
     // Effects /////////////////////////////////////////////////////////////////
-
-    // Disable edit button, if the entered page name already exists
     $effect(() => {
-        const result = homescreen.pages
-            .filter(p => p.title !== selection)
-            .find(p => p.title === input)
+        const selection = homescreen.selectedForEdit
+        if (!selection) { return }
 
-        if (result) {
-            editBtnDisabled = true
-        } else {
-            editBtnDisabled = false
+        // Find selected app
+        for (const x of homescreen.currentPage.grid) {
+            if (x.type !== 'app') { continue }
+            if (x.id !== selection) { continue }
+
+            // Set app
+            app = x;
+
+            // Find bookmark
+            let bm = bookmarks.findById(app.bookmarkId)
+
+            // Set bookmark
+            if (bm.some) { bookmark = bm.val }
+
+            break;
+        }
+    })
+
+    $effect(() => {
+        // Set title
+        if (app?.overwrites?.title) {
+            title = app.overwrites.title
+            titleInput = title
+        }
+        else { title = bookmark?.title }
+
+        // Set url
+        url = bookmark?.url
+
+        // Set icon url
+        if (app?.overwrites?.iconUrl) {
+            iconUrl = app.overwrites.iconUrl
+            iconUrlInput = iconUrl
+        }
+        else if (url) { iconUrl = getIconUrl(url) }
+    })
+
+    // Update title on input change
+    $effect(() => {
+        if (app) {
+            if (app.overwrites) {
+                app.overwrites.title = titleInput
+
+            } else {
+                app.overwrites = { title: titleInput }
+            }
+        }
+    })
+
+    $effect(() => {
+        if (app) {
+            if (app.overwrites) {
+                app.overwrites.iconUrl = iconUrlInput
+
+            } else {
+                app.overwrites = { iconUrl: iconUrlInput }
+            }
         }
     })
 
     // Functions ///////////////////////////////////////////////////////////////
-    function onMoveUp() {
-        if (!selection) { return }
-
-        // Get index
-        const index = homescreen.pages.findIndex(p => p.title === selection)
-
-        if (index === 0) { return }
-
-        const tmp = homescreen.pages[index]
-        homescreen.pages[index] = homescreen.pages[index - 1]
-        homescreen.pages[index - 1] = tmp
-    }
-
-    function onMoveDown() {
-        if (!selection) { return }
-
-        // Get index
-        const index = homescreen.pages.findIndex(p => p.title === selection)
-
-        if (index === homescreen.pages.length - 1) { return }
-
-        const tmp = homescreen.pages[index]
-        homescreen.pages[index] = homescreen.pages[index + 1]
-        homescreen.pages[index + 1] = tmp
-    }
-
-    function onAdd() {
-        // Find name
-        const base = 'New Page'
-        let counter = 1
-        let name = base
-
-        while (true) {
-            const result = homescreen.pages.find(p => p.title === name)
-            if (result) {
-                name = `${base} ${counter}`
-                counter += 1
-            } else {
-                break
-            }
-        }
-
-        // Add page
-        homescreen.pages.push({
-            title: name,
-            grid: []
-        })
-    }
-
-    function onEdit() {
-        if (!selection) { return }
-
-        // Toggle edit mode
-        editMode = !editMode
-
-        if (editMode) {
-            // If edit mode is entered, fill input field
-            const page = homescreen.pages.find(p => p.title === selection)
-            if (!page) { return }
-
-            input = page.title
-
-        } else if (input) {
-            // If edit mode is exited and the input is set, apply title
-            const page = homescreen.pages.find(p => p.title === selection)
-            if (!page) { return }
-
-            page.title = input
-            input = undefined
-        }
-    }
-
-    function onDelete() {
-        if (!selection) { return }
-
-        homescreen.pages = homescreen.pages.filter(p => p.title !== selection)
-    }
-
-    function onClickPage(pageTitle: string) {
-        // In edit mode changing the selection is prevented
-        if (editMode) { return }
-
-        // Change selection
-        selection = pageTitle
-
-        // When selection changes 
-    }
-
-    function onClickSelected() {
-        // Unset selection
-        selection = undefined
-    }
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
@@ -140,17 +102,45 @@
     <Card.Header>
         <Card.Title>Edit App</Card.Title>
         <Card.Description>
-            Edit App "insert app name here"
+            Edit App "{title ? title : '...'}"
         </Card.Description>
     </Card.Header>
 
-    <Card.Content class="overflow-y-scroll flex flex-col space-y-6">
-        
+    <Card.Content class="overflow-y-scroll flex flex-col space-y-6 p-6">
+        <!-- Bookmark ID -->
+        <Label for="bmid">Bookmark ID</Label>
+        <Input id="bmid" disabled value={app ? app.bookmarkId : '...'} class="!mt-2" />
+
+        <!-- URL -->
+        <Label for="url">URL</Label>
+        <Input id="url" disabled value={url ? url : '...'} class="!mt-2" />
+
+        <!-- Divider -->
+        <div class="flex flex-col pt-3 space-y-3">
+            <div class="border-b-[1px] dark:border-zinc-800"/>
+            <p class="font-bold text-md">Overwrites</p>
+        </div>
+
+        <!-- Title -->
+        <Label for="title">Title</Label>
+        <Input
+            id="title"
+            bind:value={titleInput} class="!mt-2"
+            placeholder={bookmark ? bookmark.title : ''}
+        />
+
+        <!-- Icon URL -->
+        <Label for="iconUrl">Title</Label>
+        <Input
+            id="iconUrl"
+            bind:value={iconUrlInput} class="!mt-2"
+            placeholder={iconUrl ? iconUrl : ''}
+        />
 
     </Card.Content>
 
-    <Card.Footer class="flex flex-row-reverse pt-4">
-        <Button onclick={() => dialogs.managePages = false}>Close</Button>
+    <Card.Footer class="flex flex-row-reverse pt-4 pr-7">
+        <Button onclick={() => dialogs.editApp = false}>Close</Button>
     </Card.Footer>
 
 </Card.Root>

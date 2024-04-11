@@ -2,17 +2,23 @@
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
     import { Plus } from 'radix-icons-svelte'
+    import type { Control } from '$lib/types';
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
-        onClick?: () => void
+        control: Control,
+        onClick?: (id: string) => void
     }
 
-    let { onClick }: Props = $props()
+    let { control, onClick }: Props = $props()
 
-    // State ///////////////////////////////////////////////////////////////////
+    // Functions ///////////////////////////////////////////////////////////////
 
-
+    function _onClick() {
+        if (onClick) {
+            onClick(control.id)
+        }
+    }
 </script>
 
 <!-- HTML ------------------------------------------------------------------ -->
@@ -29,7 +35,7 @@
             cursor-pointer
             w-full
         "
-        on:click={onClick}
+        on:click={_onClick}
     >
         <!-- Icon -->
         <div class="

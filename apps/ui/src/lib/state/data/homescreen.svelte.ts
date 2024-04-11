@@ -1,7 +1,7 @@
 // Imports /////////////////////////////////////////////////////////////////////
 import type { Page, App, Control, Divider, } from '$lib/types'
 import { homescreen } from '.'
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock Data ///////////////////////////////////////////////////////////////////
 // TODO: remove
@@ -114,22 +114,29 @@ const mock: Page[] = [
 ]
 
 // State ///////////////////////////////////////////////////////////////////////
+// Storeas all pages
 let pages = $state<Page[]>(mock)
 
+// Current page index and current page define the curently active page
+// This is used for showing the correct page as well as editing items.
 let currentPageIndex = $state<number>(0)
 const currentPage = $derived(pages[currentPageIndex])
 
+// Stores state of edit mode (if in edit mode or not)
 let editMode = $state<boolean>(false);
+
+// Stores the id of the selected item
 let selectedForEdit = $state<string | undefined>()
 
-// let pendingChange = $state<boolean>(false)
+// Stores the id of the pressed control item (e.g. add button)
+let controlId = $state<string | undefined>()
 
 // Functions ///////////////////////////////////////////////////////////////////
 function setActivePage(index: number) {
     currentPageIndex = index
 }
 
-function addButtons(enabled: boolean) {
+function controls(enabled: boolean) {
     if (enabled) {
         const grid = currentPage.grid
 
@@ -143,7 +150,11 @@ function addButtons(enabled: boolean) {
 
         let offset = 0;
         for (const index of insertionIndices) {
-            grid.splice(index + offset, 0, { type: 'control', action: 'add' })
+            grid.splice(index + offset, 0, {
+                type: 'control',
+                id: uuidv4(),
+                action: 'add',
+            })
             offset += 1;
         }
 
@@ -167,7 +178,7 @@ function addButtons(enabled: boolean) {
 }
 
 function moveApp(id: string, direction: 'left' | 'right') {
-    addButtons(false)
+    controls(false)
 
     const index = currentPage.grid.findIndex(i => {
         const item = i as (App | Divider)
@@ -175,13 +186,13 @@ function moveApp(id: string, direction: 'left' | 'right') {
     })
 
     if (index === -1) {
-        addButtons(true)
+        controls(true)
         return
     }
 
     if (direction === 'left') {
         if (index === 0) {
-            addButtons(true)
+            controls(true)
             return
         }
 
@@ -192,7 +203,7 @@ function moveApp(id: string, direction: 'left' | 'right') {
 
     else if (direction === 'right') {
         if (index === currentPage.grid.length - 1) {
-            addButtons(true);
+            controls(true);
             return
         }
 
@@ -201,7 +212,40 @@ function moveApp(id: string, direction: 'left' | 'right') {
         currentPage.grid[index] = tmp
     }
 
-    addButtons(true)
+    controls(true)
+}
+
+
+function addDivider(title: string) {
+    // Find control
+    const controlIndex = homescreen.currentPage.grid
+        .findIndex(x => x.id === controlId)
+
+    if (controlIndex === -1) { return }
+
+    // Add divider
+    homescreen.currentPage.grid.splice(controlIndex, 0, {
+        type: 'divider',
+        id: uuidv4(),
+        title
+    })
+
+    // Little hack
+    controls(false)
+    controls(true)
+}
+
+function addApp(app: App) {
+
+}
+
+function removeItem() {
+    controls(false)
+
+    homescreen.currentPage.grid = homescreen.currentPage.grid
+        .filter(x => x.id !== selectedForEdit)
+
+    controls(true)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,13 +256,18 @@ export default {
     get currentPage() { return currentPage },
 
     get editMode() { return editMode },
-    set editMode(m: boolean) { editMode = m; addButtons(m) },
+    set editMode(m: boolean) { editMode = m; controls(m) },
 
     get selectedForEdit() { return selectedForEdit },
     set selectedForEdit(s: string | undefined){ selectedForEdit = s },
 
+    get controlId() { return controlId },
+    set controlId(s: string | undefined) { controlId = s },
+
     setActivePage: setActivePage,
     moveApp: moveApp,
+    addDivider: addDivider,
+    removeItem: removeItem,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
