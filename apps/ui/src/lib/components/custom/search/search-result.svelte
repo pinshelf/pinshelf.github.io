@@ -5,8 +5,12 @@
     import { Archive } from 'radix-icons-svelte'
 
     // Props ///////////////////////////////////////////////////////////////////
-    type Props = { isFirst?: boolean, bookmark: IBookmark };
-    let { isFirst, bookmark }: Props = $props()
+    type Props = {
+        isFirst?: boolean,
+        bookmark: IBookmark,
+        onClick?: () => void,
+    };
+    let { isFirst, bookmark, onClick }: Props = $props()
 
     // State ///////////////////////////////////////////////////////////////////
 
@@ -24,7 +28,12 @@
 {/if}
 
 <!-- Actual search entry -->
-<div class="p-1.5 my-2 h-24 dark:hover:bg-zinc-800 rounded-md flex flex-row items-center space-x-1">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+    class="p-1.5 my-2 h-24 dark:hover:bg-zinc-800 rounded-md flex flex-row items-center space-x-1"
+    on:click={onClick}
+>
     <!-- Icon -->
     <div class="w-8 h-full flex flex-row items-start justify-center">
         <img

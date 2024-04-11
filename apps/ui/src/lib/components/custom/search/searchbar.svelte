@@ -22,7 +22,7 @@
 
     // let bookmarks = $state<IBookmark[]>([])
     let fuse = $derived(new Fuse(bookmarks.all, {
-        keys: ['title', 'description', 'metadata.hostname']
+        keys: ['title', 'description', 'metadata.hostname', 'tags']
     }))
     let searchResults = $derived(
         fuse.search(input).slice(0, 4).map(x => x.item)

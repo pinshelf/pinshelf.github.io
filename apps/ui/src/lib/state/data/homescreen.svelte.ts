@@ -1,5 +1,5 @@
 // Imports /////////////////////////////////////////////////////////////////////
-import type { Page, App, Control, Divider, } from '$lib/types'
+import type { Page, App, Divider, } from '$lib/types'
 import { homescreen } from '.'
 import { v4 as uuidv4 } from 'uuid';
 
@@ -164,17 +164,6 @@ function controls(enabled: boolean) {
     } else {
         currentPage.grid = currentPage.grid.filter(i => i.type !== 'control')
     }
-
-
-    // for (const x of currentPage.grid) {
-    //     if (x.type === 'divider') continue
-
-    //     if (enabled) {
-    //         x.items.push({ id: '__ADD__' })
-    //     } else {
-    //         x.items = x.items.filter(i => i.id !== '__ADD__')
-    //     }
-    // }
 }
 
 function moveApp(id: string, direction: 'left' | 'right') {
@@ -235,8 +224,19 @@ function addDivider(title: string) {
     controls(true)
 }
 
-function addApp(app: App) {
+function addApp(partialApp: Omit<App, 'type' | 'id'>) {
+    // Find control
+    const controlIndex = homescreen.currentPage.grid
+        .findIndex(x => x.id === controlId)
 
+    if (controlIndex === -1) { return }
+
+    // Add app
+    homescreen.currentPage.grid.splice(controlIndex, 0, {
+        type: 'app',
+        id: uuidv4(),
+        ...partialApp
+    })
 }
 
 function removeItem() {
@@ -268,6 +268,7 @@ export default {
     moveApp: moveApp,
     addDivider: addDivider,
     removeItem: removeItem,
+    addApp: addApp,
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -270,7 +270,7 @@
                 >
                     {#if page.title === selection}
                         <div
-                            class="dark:bg-zinc-600 w-full h-full rounded-md"
+                            class="bg-zinc-100 dark:bg-zinc-600 w-full h-full rounded-md"
                         >
                             {#if !editMode}
                                 <button

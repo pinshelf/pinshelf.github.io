@@ -130,7 +130,7 @@
         />
 
         <!-- Icon URL -->
-        <Label for="iconUrl">Title</Label>
+        <Label for="iconUrl">Icon Url</Label>
         <Input
             id="iconUrl"
             bind:value={iconUrlInput} class="!mt-2"
