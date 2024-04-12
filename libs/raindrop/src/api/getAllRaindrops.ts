@@ -3,7 +3,7 @@ import ky, { HTTPError } from 'ky'
 import { Result, Ok, Err } from 'ts-results'
 import { Report } from 'error-report'
 import { BASE_URL } from '.'
-import { IRaindrop, SRaindrop, responseSchema } from './schemas'
+import { type IRaindrop, SRaindrop, responseSchema } from './schemas'
 
 // API Request /////////////////////////////////////////////////////////////////
 

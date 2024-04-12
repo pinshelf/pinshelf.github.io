@@ -12,7 +12,7 @@ export class Bookmark implements XIBookmark {
     public readonly _type = 'bookmark'
     public readonly id: number
     public readonly title: Option<string>
-    public readonly description: Option<string>
+    public description: Option<string>
     public readonly url: string
     public readonly tags: string[]
 

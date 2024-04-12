@@ -3,9 +3,9 @@ export { RaindropBuilder } from './builder'
 
 // Imports /////////////////////////////////////////////////////////////////////
 import { Err, Ok, Result } from 'ts-results'
-import { getAllRaindrops, getChildCollections, getRootCollections, getUserStats, IRaindropPostData, postRaindrop } from './api'
-import { ICollection, IRaindrop, IRaindropPost, IRaindropPut, IUserStats } from './api/schemas'
-import { IRaindropPutData, putRaindrop } from './api/putRaindrop'
+import { getAllRaindrops, getChildCollections, getRootCollections, getUserStats, type IRaindropPostData, postRaindrop } from './api'
+import type { ICollection, IRaindrop, IRaindropPost, IRaindropPut, IUserStats } from './api/schemas'
+import { type IRaindropPutData, putRaindrop } from './api/putRaindrop'
 
 // Class ///////////////////////////////////////////////////////////////////////
 

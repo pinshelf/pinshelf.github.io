@@ -3,7 +3,7 @@ import ky, { HTTPError } from 'ky'
 import { Result, Ok, Err } from 'ts-results'
 import { Report } from 'error-report'
 import { BASE_URL } from '.'
-import { IUserStats, SUserStats } from './schemas'
+import { type IUserStats, SUserStats } from './schemas'
 
 // API Request /////////////////////////////////////////////////////////////////
 /**

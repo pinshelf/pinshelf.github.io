@@ -3,7 +3,7 @@ import ky, { HTTPError } from 'ky'
 import { Result, Ok, Err } from 'ts-results'
 import { Report } from 'error-report'
 import { BASE_URL } from '.'
-import { IRaindrop, IRaindropPost, SRaindropPost } from './schemas'
+import { type IRaindrop, type IRaindropPost, SRaindropPost } from './schemas'
 
 // Types ///////////////////////////////////////////////////////////////////////
 export type IRaindropPostData = Partial<Omit<IRaindrop, 'link' | '_id'>> & {

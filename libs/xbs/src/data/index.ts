@@ -163,7 +163,33 @@ export class XbsData {
     }
 
     /**
-     * 
+     * Find {@link Bookmark} by `title`.
+     */
+    public findBookmarkByTitle(title: string): Option<Bookmark> {
+        // Breadth first search
+        const queue: (Folder | Bookmark)[] = [ this.root ]
+        // const visited: Set<number> = new Set([ this.root.data.id ])
+
+        while (queue.length > 0) {
+            // Get first node from queue
+            const node = queue.shift()!
+
+            if (node instanceof Bookmark) {
+                // Check if title matches
+                if (node.title.some && node.title.val === title) {
+                    return Some(node)
+                }
+
+            } else {
+                queue.push(...node.children)
+            }
+        }
+
+        return None
+    }
+
+    /**
+     * Get all {@link Bookmark}s.
      */
     public findAllBookmarks(): Bookmark[] {
         // Breadth first serach
@@ -482,7 +508,6 @@ export class XbsData {
 
                 // Validate parent id
                 if (node.parent.none) {
-                    console.log(node)
                     return Err('something went wrong: no parent for folder')
                 }
 
