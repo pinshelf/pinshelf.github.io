@@ -2,7 +2,7 @@
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
     import { Add, App as AppComponent, Divider as DividerComponent } from '$lib/components/custom/homescreen'
-    import { type Divider, type App, type Control } from '$lib/types'
+    import { type Divider, type App, type Control, type AppDividerControl } from '$lib/types'
     import { homescreen } from '$lib/state/data'
     import { flip } from 'svelte/animate'
     import { Button } from '$lib/components/ui/button';
@@ -11,7 +11,6 @@
     import { dialogs } from '$lib/state/aux'
 
     // State ///////////////////////////////////////////////////////////////////
-
 
     // Effects /////////////////////////////////////////////////////////////////
 
@@ -42,7 +41,7 @@
         }
     }
 
-    function gridItemStyle(gridItem: App | Divider | Control) {
+    function gridItemStyle(gridItem: AppDividerControl) {
         let twcss = 'w-full rounded-md '
 
         if (gridItem.type === 'app') {
@@ -236,7 +235,7 @@
                 />
 
             {:else if gridItem.type === 'control'}
-                {@const control = gridItem as Control}
+                {@const control = gridItem as unknown as Control}
                 <Add {control} onClick={onAdd}/>
             {/if}
         </div>

@@ -42,6 +42,16 @@ const ControlSchema = z.object({
 export type Control = z.infer<typeof DividerSchema>
 
 /**
+ * Create disctiminated union of these types simply for type safety
+ */
+const _ = z.discriminatedUnion('type', [
+    AppSchema, DividerSchema, ControlSchema
+])
+
+export type AppDividerControl = z.infer<typeof _>
+
+
+/**
  * Page Schema
  */
 export const PageSchema = z.object({
