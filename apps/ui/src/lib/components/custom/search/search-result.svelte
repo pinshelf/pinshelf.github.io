@@ -43,8 +43,10 @@
     on:mouseenter={() => dispatch('mouseenter')}
     on:mouseleave={() => dispatch('mouseleave')}
     on:click={(event: Event) => {
-        event.preventDefault()
-        onClick()
+        if (onClick) {
+            event.preventDefault()
+            onClick()
+        }
     }}
     class={`
             p-1.5
