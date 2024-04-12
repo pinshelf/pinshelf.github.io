@@ -4,6 +4,7 @@ export * from './raindrop'
 
 // Imports /////////////////////////////////////////////////////////////////////
 import type { Result, Option } from 'ts-results'
+import type { Settings } from './settings'
 
 // Types ///////////////////////////////////////////////////////////////////////
 export const BACKENDS = ['xbs', 'raindrop'] as const
@@ -68,6 +69,22 @@ export interface IBackend extends IBookmarkReader {
      * seamless re-authentication.
      */
     getCredentials(): Record<string, unknown>,
+
+    /**
+     * Returns the date time of the last update (of the bookmark data).
+     * The return value is a unix timestamp (in milliseconds)
+     */
+    getLastUpdated(): Promise<Result<number, string>>,
+
+    /**
+     * Write settings to remote/API.
+     */
+    writeSettings(settings: Settings): Promise<Result<null, string>>;
+
+    /**
+     * Extract settings from given bookmarks
+     */
+    extractSettings(bookmarks: IBookmark[]): Result<Settings, string>;
 }
 
 export interface IBookmarkReader {

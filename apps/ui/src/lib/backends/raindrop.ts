@@ -6,9 +6,10 @@ import { hostnameFromUrl } from '$lib/utils/hostname'
 import { RaindropBuilder, RaindropClient } from 'raindrop'
 import type { ICollection, IRaindrop } from 'raindrop/src/api/schemas'
 import { toOption } from 'ts-results-utils'
+import { PINSHELF_SETTINGS_TITLE, SettingsSchema, type Settings } from './settings'
 
 // Constants ///////////////////////////////////////////////////////////////////
-const CACHE_THRESHOLD = 10_000 // 10 seconds (because of raindrop rate limit)
+const CACHE_THRESHOLD = 5_000 // 5 seconds (because of raindrop rate limit)
 
 // Builder /////////////////////////////////////////////////////////////////////
 export const RaindropBackendBuilder: IBackendBuilder = {
@@ -127,33 +128,6 @@ export class RaindropBackend implements IBackend {
         }
     }
 
-    private getAncestors(
-        parentId: number, collectionIndex: Map<number, ICollection>
-    ): string[] {
-        // Start with empty path because the current folder/bookmark title
-        // should not be included.
-        const path: string[] = []
-
-        // Pointer to the current item's parent
-        let parent = collectionIndex.get(parentId)
-
-        // While the current item has a parent, add the parent's title to the
-        // path.
-        while (parent) {
-            path.push(parent.title)
-
-            // Move pointer to parent's parent
-            if (parent.parent) {
-                parent = collectionIndex.get(parent.parent.$id)
-
-            } else {
-                break
-            }
-        }
-
-        return path
-    }
-
     // IBookmarkReader Methods /////////////////////////////////////////////////
     /**
      * TODO: docs
@@ -175,7 +149,7 @@ export class RaindropBackend implements IBackend {
             tags        : item.tags,
             note        : item.note,
             metadata    : {
-                path    : this.getAncestors(
+                path    : getAncestors(
                     item.collection.$id, data.val.collectionIndex
                 ),
                 hostname: hostnameFromUrl(item.link),
@@ -200,7 +174,7 @@ export class RaindropBackend implements IBackend {
             tags        : item.tags,
             note        : item.note,
             metadata    : {
-                path    : this.getAncestors(
+                path    : getAncestors(
                     item.collection.$id, data.val.collectionIndex
                 ),
                 hostname: hostnameFromUrl(item.link),
@@ -208,7 +182,107 @@ export class RaindropBackend implements IBackend {
         }}))
     }
 
+    async getLastUpdated(): Promise<Result<number, string>> {
+        // Get data
+        const data = await this.rdc.getUserStats()
+        if (data.err) { return Err(data.val) }
+
+        // Extract iso string
+        const iso = data.val.meta.changedBookmarksDate
+
+        // Convert iso string to unix timestamp (in milliseconds)
+        const unixTs = Date.parse(iso)
+
+        // Return
+        return Ok(unixTs)
+    }
+
+    async writeSettings(settings: Settings): Promise<Result<null, string>> {
+        // Get data
+        const data = await this.loadFromCacheOrApi(false)
+        if (data.err) { return Err(data.val) }
+
+        // Check if there are already settings
+        const existingSettingsBookmark = data.val.raindrops
+            .find(x => x.title === PINSHELF_SETTINGS_TITLE)
+
+        if (existingSettingsBookmark) {
+            const settingsBookmark = existingSettingsBookmark
+
+            // Update existing bookmark
+            const res = await this.rdc.putRaindrop(settingsBookmark._id, {
+                note: JSON.stringify(settings)
+            })
+
+            return res.map(() => null)
+
+        } else {
+            const res = await this.rdc.postRaindrop({
+                title: PINSHELF_SETTINGS_TITLE,
+                excerpt: 'Do NOT modify this bookmark! Moving allowed!',
+                link: 'https://pinshelf.github.io',
+                domain: 'pinshelf.github.io',
+                note: JSON.stringify(settings)
+            })
+
+            return res.map(() => null)
+        }
+    }
+
+    extractSettings(bookmarks: IBookmark[]): Result<Settings, string> {
+        // Try to find settings
+        const settingsBookmark = bookmarks
+            .find(b => b.title === PINSHELF_SETTINGS_TITLE)
+
+        if (!settingsBookmark) {
+            return Err('Settings not found in given bookmark data.')
+        }
+
+        // Extract and parse (raindrop uses the 'note' field)
+        const settings = SettingsSchema
+            .safeParse(JSON.parse(settingsBookmark.note))
+        if (!settings.success) {
+            return Err(settings.error.toString())
+        }
+
+        // Return
+        return Ok(settings.data)
+    }
+
     ////////////////////////////////////////////////////////////////////////////
+}
+
+
+// Helper Functions ////////////////////////////////////////////////////////////
+
+/**
+ * Function returns the ancestors of a folder/bookmark in correct order.
+ */
+function getAncestors(
+    parentId: number, collectionIndex: Map<number, ICollection>
+): string[] {
+    // Start with empty path because the current folder/bookmark title
+    // should not be included.
+    const path: string[] = []
+
+    // Pointer to the current item's parent
+    let parent = collectionIndex.get(parentId)
+
+    // While the current item has a parent, add the parent's title to the
+    // path.
+    while (parent) {
+        path.push(parent.title)
+
+        // Move pointer to parent's parent
+        if (parent.parent) {
+            parent = collectionIndex.get(parent.parent.$id)
+
+        } else {
+            break
+        }
+    }
+
+    return path
 }
 
 ////////////////////////////////////////////////////////////////////////////////

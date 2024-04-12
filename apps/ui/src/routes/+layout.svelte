@@ -20,7 +20,12 @@
     const currentRoute = $derived($page.url.pathname)
 
     // Mount ///////////////////////////////////////////////////////////////////
+    /**
+     * This effect is triggered whenever the `profiles` state changes, to then
+     * update the `backend` state to the correct backend used in the profile.
+     */
     $effect(() => { backend.set() })
+
 
     // Functions ///////////////////////////////////////////////////////////////
     async function onProfileChange(profileName: string) {
