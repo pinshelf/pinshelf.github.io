@@ -3,7 +3,7 @@
     // Imports /////////////////////////////////////////////////////////////////
     import type { App } from '$lib/types';
     import { bookmarks } from '$lib/state/data'
-    import { getIconUrl } from 'url-icons'
+    import { getIconUrl, type IconUrl } from 'url-icons'
 
     // Props ///////////////////////////////////////////////////////////////////
     type Props = {
@@ -16,7 +16,8 @@
     // State ///////////////////////////////////////////////////////////////////
     let title = $state<string>()
     let url = $state<string>()
-    let iconUrl = $state<string>()
+    let iconUrl = $state<IconUrl>()
+    let dynamicBg = $state<string>('')
 
     $effect(() => {
         const { bookmarkId, overwrites } = app;
@@ -34,8 +35,25 @@
         url = bookmark.url
 
         // Set icon url
-        if (overwrites?.iconUrl) { iconUrl = overwrites.iconUrl }
-        else { iconUrl = getIconUrl(url) }
+        if (overwrites?.iconUrl) {
+            iconUrl = {
+                url: overwrites.iconUrl,
+                attribution: { source: overwrites.iconUrl },
+                renderInfo: { type: 'as-is' },
+            }
+        }
+        else {
+            iconUrl = getIconUrl(url)
+
+            if (iconUrl.renderInfo.type === 'padded'
+                && iconUrl.renderInfo.background
+            ) {
+                const bg = iconUrl.renderInfo.background
+                dynamicBg = `bg-[${bg.light}] dark:bg-[${bg.dark}]`
+
+                console.log(dynamicBg)
+            }
+        }
     })
 
     function _onClick() {
@@ -63,15 +81,35 @@
             w-16 h-16
             rounded-2xl overflow-hidden
 
-            bg-zinc-200 dark:bg-zinc-700
+
+
             border-[0.5px] border-zinc-300 dark:border-zinc-800
             shadow dark:shadow-zinc-950
         ">
-            <img
-                src={iconUrl}
-                alt="icon"
-                class="w-full h-full"
-            />
+            {#if iconUrl}
+                {#if iconUrl.renderInfo.type === 'as-is'}
+                    <img
+                        src={iconUrl.url}
+                        alt="icon"
+                        class="w-full h-full"
+                    />
+
+                {:else if iconUrl.renderInfo.type === 'padded'}
+                    <div class={(() => {
+                        let base = "w-full h-full p-2"
+                        if (dynamicBg) { base += ` ${dynamicBg}` }
+
+                        return base
+                    })()}
+                    >
+                        <img
+                            src={iconUrl.url}
+                            alt="icon"
+                            class="w-full h-full"
+                        />
+                    </div>
+                {/if}
+            {/if}
         </div>
 
         <!-- Title -->

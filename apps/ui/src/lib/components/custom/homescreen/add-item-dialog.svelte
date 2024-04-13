@@ -42,6 +42,8 @@
         fuse.search(search || '').slice(0, 20).map(x => x.item)
     )
 
+    let defaultIconInfo = $derived(bookmark ? getIconUrl(bookmark.url) : undefined)
+
     // Effects /////////////////////////////////////////////////////////////////
 
     // Functions ///////////////////////////////////////////////////////////////
@@ -90,7 +92,7 @@
             </Tabs.List>
 
             <!-- App -->
-            <div class="w-full h-[480px] pt-4">
+            <div class="w-full h-[530px] pt-4">
                 {#if tab === 'app'}
                     <Tabs.Content value="app" class="w-full h-full flex flex-col space-y-6">
                         <!-- Search and selection -->
@@ -198,8 +200,24 @@
                             <Input
                                 id="iconUrl"
                                 bind:value={iconUrlOverwrite} class="!mt-2"
-                                placeholder={bookmark ? getIconUrl(bookmark.url) : ''}
+                                placeholder={defaultIconInfo?.url}
                             />
+
+                            <!-- Render Default Icon Attribution -->
+                            {#if defaultIconInfo}
+                                <p class="text-sm my-2">
+                                Default app image published <a class="underline" href={defaultIconInfo.attribution.source} target="_blank">here</a>
+
+                                {#if defaultIconInfo.attribution.license}
+                                    (under <a class="underline" href={defaultIconInfo.attribution.license.link} target="_blank">{defaultIconInfo.attribution.license.name}</a> license)
+                                {/if}
+
+                                {#if defaultIconInfo.attribution.author}
+                                    created by <span>{defaultIconInfo.attribution.author}</span>
+                                {/if}
+                                .
+                                </p>
+                            {/if}
                         </div>
                     </Tabs.Content>
 
