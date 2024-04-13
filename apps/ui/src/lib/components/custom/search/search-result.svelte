@@ -66,7 +66,7 @@
     <div class="w-8 h-full flex flex-row items-start justify-center">
         <img
             class="w-5 h-5 rounded-sm mt-[3px]"
-            src="http://icon.horse/icon/{bookmark.metadata.hostname}"
+            src="https://icon.horse/icon/{bookmark.metadata.hostname}"
             alt="icon"
         />
     </div>

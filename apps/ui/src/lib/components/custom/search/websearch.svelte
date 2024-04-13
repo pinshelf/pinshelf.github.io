@@ -41,14 +41,14 @@
             space-x-1
             ${classExtension}
         `}
-   href="{searchUrl}"
-   target="_blank"
+    href="{searchUrl}"
+    target="_blank"
 >
     <!-- Icon -->
     <div class="w-8 h-full flex flex-row items-start justify-center">
         <img
             class="w-5 h-5 rounded-sm mt-[3px]"
-            src="http://icon.horse/icon/duckduckgo.org"
+            src="https://icon.horse/icon/duckduckgo.org"
             alt="icon"
         />
     </div>
