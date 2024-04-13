@@ -11,6 +11,24 @@
     import { ManagePages, EditApp, AddItemDialog, EditDivider } from '$lib/components/custom/homescreen'
     import { page } from '$app/stores';
 
+    // Service Worker Update ///////////////////////////////////////////////////
+    async function detectServiceWorkerUpdate() {
+        const registration = await navigator.serviceWorker.ready;
+        registration.addEventListener('updatefound', () => {
+            const newSw = registration.installing;
+            newSw?.addEventListener('statechange', async () => {
+                if (newSw.state === 'installed') {
+                    if (confirm('Update verfügbar. Bitte neu laden!')) {
+                        newSw.postMessage({ type: 'skipWaiting' });
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+    }
+
+    detectServiceWorkerUpdate();
+
     // Stores //////////////////////////////////////////////////////////////////
     import { profiles, backend } from '$lib/state/config';
     import { dialogs } from '$lib/state/aux';
