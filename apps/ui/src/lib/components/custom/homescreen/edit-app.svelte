@@ -11,7 +11,7 @@
     import { bookmarks, homescreen } from '$lib/state/data';
     import { type App } from '$lib/types';
     import { type IBookmark } from '$lib/backends';
-    import { getIconUrl } from 'url-icons';
+    import { getIconUrl, type IconUrl } from 'url-icons';
 
     // Props ///////////////////////////////////////////////////////////////////
 
@@ -22,10 +22,11 @@
 
     let title = $state<string>()
     let url = $state<string>()
-    let iconUrl = $state<string>()
+    let iconUrl = $state<IconUrl>()
 
     let titleInput = $state<string>()
     let iconUrlInput = $state<string>()
+    let defaultIconInfo = $derived(bookmark ? getIconUrl(bookmark.url) : undefined)
 
     // Effects /////////////////////////////////////////////////////////////////
     $effect(() => {
@@ -63,8 +64,13 @@
 
         // Set icon url
         if (app?.overwrites?.iconUrl) {
-            iconUrl = app.overwrites.iconUrl
-            iconUrlInput = iconUrl
+            iconUrl = {
+                url: app.overwrites.iconUrl,
+                attribution: { source: app.overwrites.iconUrl },
+                renderInfo: { type: 'as-is' },
+            }
+
+            iconUrlInput = iconUrl.url
         }
         else if (url) { iconUrl = getIconUrl(url) }
     })
@@ -134,8 +140,24 @@
         <Input
             id="iconUrl"
             bind:value={iconUrlInput} class="!mt-2"
-            placeholder={iconUrl ? iconUrl : ''}
+            placeholder={iconUrl?.url}
         />
+
+        <!-- Render Default Icon Attribution -->
+        {#if defaultIconInfo}
+            <p class="text-sm my-2">
+            Default app image published <a class="underline" href={defaultIconInfo.attribution.source} target="_blank">here</a>
+
+            {#if defaultIconInfo.attribution.license}
+                (under <a class="underline" href={defaultIconInfo.attribution.license.link} target="_blank">{defaultIconInfo.attribution.license.name}</a> license)
+            {/if}
+
+            {#if defaultIconInfo.attribution.author}
+                created by <span>{defaultIconInfo.attribution.author}</span>
+            {/if}
+            .
+            </p>
+        {/if}
 
     </Card.Content>
 
