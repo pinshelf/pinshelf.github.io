@@ -11,6 +11,24 @@
     import { ManagePages, EditApp, AddItemDialog, EditDivider } from '$lib/components/custom/homescreen'
     import { page } from '$app/stores';
 
+    // Service Worker Update ///////////////////////////////////////////////////
+    async function detectServiceWorkerUpdate() {
+        const registration = await navigator.serviceWorker.ready;
+        registration.addEventListener('updatefound', () => {
+            const newSw = registration.installing;
+            newSw?.addEventListener('statechange', async () => {
+                if (newSw.state === 'installed') {
+                    if (confirm('Update verfügbar. Bitte neu laden!')) {
+                        newSw.postMessage({ type: 'skipWaiting' });
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+    }
+
+    detectServiceWorkerUpdate();
+
     // Stores //////////////////////////////////////////////////////////////////
     import { profiles, backend } from '$lib/state/config';
     import { dialogs } from '$lib/state/aux';
@@ -20,7 +38,12 @@
     const currentRoute = $derived($page.url.pathname)
 
     // Mount ///////////////////////////////////////////////////////////////////
+    /**
+     * This effect is triggered whenever the `profiles` state changes, to then
+     * update the `backend` state to the correct backend used in the profile.
+     */
     $effect(() => { backend.set() })
+
 
     // Functions ///////////////////////////////////////////////////////////////
     async function onProfileChange(profileName: string) {

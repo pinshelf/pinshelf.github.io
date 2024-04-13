@@ -197,6 +197,7 @@
                     on:click={() => {
                         if (homescreen.editMode === true) {
                             homescreen.editMode = false
+                            homescreen.save()
 
                         } else {
                             homescreen.editMode = true

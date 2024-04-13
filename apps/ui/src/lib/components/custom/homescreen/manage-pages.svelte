@@ -22,6 +22,7 @@
     let editBtnDisabled = $state<boolean>(false)
     let input           = $state<string | undefined>()
     let deleteBtnDisabled = $derived(homescreen.pages.length < 2)
+    let closeBtnDisabled = $derived(editMode)
 
     // Effects /////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,8 @@
         const tmp = homescreen.pages[index]
         homescreen.pages[index] = homescreen.pages[index - 1]
         homescreen.pages[index - 1] = tmp
+
+        homescreen.save()
     }
 
     function onMoveDown() {
@@ -63,6 +66,8 @@
         const tmp = homescreen.pages[index]
         homescreen.pages[index] = homescreen.pages[index + 1]
         homescreen.pages[index + 1] = tmp
+
+        homescreen.save()
     }
 
     function onAdd() {
@@ -86,6 +91,8 @@
             title: name,
             grid: []
         })
+
+        homescreen.save()
     }
 
     function onEdit() {
@@ -100,6 +107,7 @@
             if (!page) { return }
 
             input = page.title
+            homescreen.save()
 
         } else if (input) {
             // If edit mode is exited and the input is set, apply title
@@ -108,6 +116,7 @@
 
             page.title = input
             input = undefined
+            homescreen.save()
         }
     }
 
@@ -133,6 +142,8 @@
         if (currPageIndex > homescreen.pages.length - 1) {
             homescreen.setActivePage(homescreen.pages.length - 1)
         }
+
+        homescreen.save()
     }
 
     function onClickPage(pageTitle: string) {
@@ -327,7 +338,10 @@
     </Card.Content>
 
     <Card.Footer class="flex flex-row-reverse pt-4 pr-7">
-        <Button onclick={() => dialogs.managePages = false}>Close</Button>
+        <Button
+            disabled={closeBtnDisabled}
+            onclick={() => dialogs.managePages = false}
+        >Close</Button>
     </Card.Footer>
 
 </Card.Root>

@@ -3,6 +3,7 @@ import type { IBookmark } from '$lib/backends';
 import type { Option } from 'ts-results';
 import { toOption } from 'ts-results-utils';
 import { backend } from '../config'
+import { homescreen } from '.';
 
 // State ///////////////////////////////////////////////////////////////////////
 let bookmarks = $state<IBookmark[]>([])
@@ -17,20 +18,26 @@ async function load() {
     // Get backend
     const be = backend.data;
     if (be.none) {
-        console.log('wanted to load bookmarks but backend not set yet')
+        console.log('Bookmarks NOT loaded: no backend set yet')
         return
     }
 
     // Load bookmarks
     const b = await be.val.get()
     if (b.err) {
-        console.log(`error while fetching bookmarks: ${b.val}`)
+        console.error(`Error while fetching bookmarks: ${b.val}`)
         return
     }
 
     // Update state
     bookmarks = b.val
-    console.log(`fetched ${bookmarks.length} bookmarks`)
+    console.log(`Bookmarks loaded: amount = ${bookmarks.length}`)
+
+    // Notify backend state about the last fetch to the backend
+    backend.setLastFetch(Date.now())
+
+    // Notify the homescreen to update its state
+    await homescreen.init();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

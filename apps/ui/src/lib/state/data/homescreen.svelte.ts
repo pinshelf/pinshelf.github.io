@@ -1,126 +1,20 @@
 // Imports /////////////////////////////////////////////////////////////////////
-import type { Page, App, Divider, } from '$lib/types'
-import { homescreen } from '.'
+import type { Page, App, Divider } from '$lib/types'
+import { bookmarks, homescreen } from '.'
 import { v4 as uuidv4 } from 'uuid';
+import { backend } from '../config';
 
-// Mock Data ///////////////////////////////////////////////////////////////////
-// TODO: remove
-// const mock: Page[] = [
-//     {
-//         title: 'Start',
-//         grid: [
-//             // Group
-//             {
-//                 type: 'app',
-//                 id: '0',
-//                 bookmarkId: 11,
-//                 overwrites: {
-//                     title: 'Ross-Tech'
-//                 }
-//             },
-//             {
-//                 type: 'app',
-//                 id: '1',
-//                 bookmarkId: 12,
-//                 // overwrites: {},
-//             },
-
-//             {
-//                 type: 'app',
-//                 id: '352434',
-//                 bookmarkId: 12,
-//                 // overwrites: {},
-//             },
-
-//             {
-//                 type: 'app',
-//                 id: '352323',
-//                 bookmarkId: 12,
-//                 // overwrites: {},
-//             },
-
-//             // Divider
-//             {
-//                 type: 'divider',
-//                 id: '100',
-//                 title: 'Internet Search'
-//             },
-
-//             // Group
-//             {
-//                 type: 'app',
-//                 id: '2',
-//                 bookmarkId: 3,
-//             },
-//             {
-//                 type: 'app',
-//                 id: '3',
-//                 bookmarkId: 9,
-//                 overwrites: {
-//                     title: 'DDG 2',
-//                 }
-//             },
-//             {
-//                 type: 'app',
-//                 id: '4',
-//                 bookmarkId: 13,
-//             },
-//         ]
-//     },
-
-//     {
-//         title: 'Second',
-//         grid: [
-//             // Divider
-//             {
-//                 type: 'divider',
-//                 id: '123',
-//                 title: 'I\'m a divider',
-//             },
-
-//             // Group
-//             {
-//                 type: 'app',
-//                 id: '2',
-//                 bookmarkId: 3,
-//             },
-//         ],
-//     },
-
-//     {
-//         title: 'a',
-//         grid: [],
-//     },
-
-//     {
-//         title: 'b',
-//         grid: [],
-//     },
-
-//     {
-//         title: 'c',
-//         grid: [],
-//     },
-
-//     {
-//         title: 'd',
-//         grid: [],
-//     },
-
-//     {
-//         title: 'e',
-//         grid: [],
-//     },
-// ]
-
-// State ///////////////////////////////////////////////////////////////////////
-// Storeas all pages
-let pages = $state<Page[]>([
+// Constants ///////////////////////////////////////////////////////////////////
+const DEFAULT_PAGES = [
     {
         title: 'Default',
         grid: [],
     }
-])
+]
+
+// State ///////////////////////////////////////////////////////////////////////
+// Storeas all pages
+let pages = $state<Page[]>(DEFAULT_PAGES)
 
 // Current page index and current page define the curently active page
 // This is used for showing the correct page as well as editing items.
@@ -136,13 +30,93 @@ let selectedForEdit = $state<string | undefined>()
 // Stores the id of the pressed control item (e.g. add button)
 let controlId = $state<string | undefined>()
 
+// Skip next homescreen initialization if change was commited from this instance
+let skipNextHomescreenInit = $state<boolean>(false)
+
 // Functions ///////////////////////////////////////////////////////////////////
-function setActivePage(index: number) {
-    currentPageIndex = index
+
+/**
+ * This function is called by the `bookmarks` state, if it re-fetched data.
+ * Therefore we can then use the bookmark state to get the homescreen data.
+ */
+async function init() {
+    if (skipNextHomescreenInit) {
+        skipNextHomescreenInit = false
+        console.log(
+            'Homescreen initialization skipped, because latest change was',
+            'done by this instance')
+        return
+    }
+
+    // Extract settings (using the current backend and the already loaded
+    // bookmark data).
+    if (backend.data.none) {
+        console.log('Homescreen NOT initialized: No backend set')
+        return
+    }
+
+    const settings = backend.data.val.extractSettings(bookmarks.all)
+    if (settings.err) {
+        console.log(`Homescreen NOT initialized: ${settings.val}`)
+        pages = DEFAULT_PAGES
+        currentPageIndex = 0
+        editMode = false
+        selectedForEdit = undefined
+        controlId = undefined
+        skipNextHomescreenInit = false
+        console.log('Loaded default/empty profile')
+        return
+    }
+
+    // Set state from loaded settings
+    pages = settings.val.homescreen.pages
+    currentPageIndex = settings.val.homescreen.currentPageIndex
+
+    editMode = false
+    selectedForEdit = undefined
+    controlId = undefined
+
+    console.log('Homescreen initialized')
 }
 
-function controls(enabled: boolean) {
-    if (enabled) {
+/**
+ * This function is called by the root layout when the `homescreen` state
+ * changes.
+ */
+async function save() {
+    if (backend.data.none) {
+        console.warn('Failed to save homescreen: No backend set')
+        return
+    }
+
+    // Deep-copy pages and remove control elements
+    const copy = JSON.parse(JSON.stringify(pages)) as Page []
+    for (const page of copy) {
+        page.grid = page.grid.filter(x => x.type !== 'control')
+    }
+
+    // Write settings
+    const res = await backend.data.val.writeSettings({
+        homescreen: {
+            pages: copy,
+            currentPageIndex: currentPageIndex,
+        }
+    })
+
+    if (res.err) { return console.error(`Failed to save settings: ${res.val}`) }
+
+    console.log('Homescreen saved!!!')
+    skipNextHomescreenInit = true
+}
+
+
+function setActivePage(index: number) {
+    currentPageIndex = index
+    save()
+}
+
+function controls(enable: boolean) {
+    if (enable) {
         const grid = currentPage.grid
 
         const insertionIndices: number[] = []
@@ -209,7 +183,6 @@ function moveApp(id: string, direction: 'left' | 'right') {
     controls(true)
 }
 
-
 function addDivider(title: string) {
     // Find control
     const controlIndex = homescreen.currentPage.grid
@@ -231,13 +204,13 @@ function addDivider(title: string) {
 
 function addApp(partialApp: Omit<App, 'type' | 'id'>) {
     // Find control
-    const controlIndex = homescreen.currentPage.grid
+    const controlIndex = currentPage.grid
         .findIndex(x => x.id === controlId)
 
     if (controlIndex === -1) { return }
 
     // Add app
-    homescreen.currentPage.grid.splice(controlIndex, 0, {
+    currentPage.grid.splice(controlIndex, 0, {
         type: 'app',
         id: uuidv4(),
         ...partialApp
@@ -247,7 +220,7 @@ function addApp(partialApp: Omit<App, 'type' | 'id'>) {
 function removeItem() {
     controls(false)
 
-    homescreen.currentPage.grid = homescreen.currentPage.grid
+    currentPage.grid = currentPage.grid
         .filter(x => x.id !== selectedForEdit)
 
     controls(true)
@@ -270,11 +243,13 @@ export default {
     get controlId() { return controlId },
     set controlId(s: string | undefined) { controlId = s },
 
+    init: init,
     setActivePage: setActivePage,
     moveApp: moveApp,
     addDivider: addDivider,
     removeItem: removeItem,
     addApp: addApp,
+    save: save,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
