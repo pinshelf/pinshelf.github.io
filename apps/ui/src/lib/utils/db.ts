@@ -4,18 +4,8 @@ import type { IBookmark } from '$lib/backends';
 const DB_VERSION = 1;
 const BOOKMARKS_STORE_NAME = 'bookmarks';
 
-// TODO: TypeScript Error
-//      Interface 'IBookmarkDb' incorrectly extends interface 'IBookmark'.
-//      Types of property 'id' are incompatible.
-//      Type 'number | undefined' is not assignable to type 'number'.
-//      Type 'undefined' is not assignable to type 'number'.ts(2430)
-//
-interface IBookmarkDb extends IBookmark {
-    id: number;
-}
-
 class BookmarkDatabase extends Dexie {
-    bookmarks!: Table<IBookmarkDb>; 
+    bookmarks!: Table<IBookmark>; 
 
     constructor() {
         super('BookmarkDatabase');
@@ -27,4 +17,4 @@ class BookmarkDatabase extends Dexie {
 
 const db = new BookmarkDatabase();
 
-export { db, liveQuery, type IBookmarkDb };
+export { db, liveQuery, type IBookmark };

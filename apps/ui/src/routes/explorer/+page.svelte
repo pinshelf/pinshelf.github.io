@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
-    import type { IBookmarkDb } from '$lib/utils/db';
+    import type { IBookmark } from '$lib/utils/db';
     import { bookmarksStore, loadData, updateBookmark } from '$lib/utils/dataService';
     import { addNewTag, deleteTag, updateTag } from '$lib/utils/tagUtils';
     import { HfInference } from '@huggingface/inference';
@@ -17,12 +17,12 @@
         }
     });
 
-    let bookmarks = $state<IBookmarkDb[]>([])
+    let bookmarks = $state<IBookmark[]>([])
     $effect(() => { bookmarks = globalBookmarks.all })
 
     let tags = $state<string[]>([]);
     let selectedBookmark = $state<number | null>(null);
-    let recommendedBookmark = $state<IBookmarkDb | null>(null);
+    let recommendedBookmark = $state<IBookmark | null>(null);
 
     function selectRandomBookmarkWithTopTag() {
         const tagCounts = bookmarks.reduce((acc: Record<string, number>, bookmark) => {
@@ -50,7 +50,7 @@
         return bookmarksWithTopTag[randomIndex];
     }
 
-    async function generateAITags(event: MouseEvent, bookmark: IBookmarkDb) {
+    async function generateAITags(event: MouseEvent, bookmark: IBookmark) {
         event.stopPropagation();
 
         try {
@@ -99,14 +99,14 @@
         window.open(url, '_blank');
     }
 
-    function handleTagClick(event: MouseEvent, bookmark: IBookmarkDb, index: number) {
+    function handleTagClick(event: MouseEvent, bookmark: IBookmark, index: number) {
         event.stopPropagation();
         const input = event.target as HTMLInputElement;
         input.focus();
         input.select();
     }
 
-    async function updateBookmarksAndTags(updatedBookmark: IBookmarkDb | null) {
+    async function updateBookmarksAndTags(updatedBookmark: IBookmark | null) {
         if (updatedBookmark && updatedBookmark.id !== undefined) {
             await updateBookmark(updatedBookmark.id, updatedBookmark);
             bookmarks = bookmarks.map(b => b.id === updatedBookmark.id ? updatedBookmark : b);
@@ -114,21 +114,21 @@
         }
     }
 
-    async function handleAddNewTag(bookmark: IBookmarkDb) {
+    async function handleAddNewTag(bookmark: IBookmark) {
         const updatedBookmark = await addNewTag(bookmark);
         await updateBookmarksAndTags(updatedBookmark);
     }
 
-    async function handleDeleteTag(bookmark: IBookmarkDb, index: number) {
+    async function handleDeleteTag(bookmark: IBookmark, index: number) {
         const updatedBookmark = await deleteTag(bookmark, index);
         await updateBookmarksAndTags(updatedBookmark);
     }
 
-    async function handleTagKeyDown(event: KeyboardEvent, bookmark: IBookmarkDb, index: number) {
+    async function handleTagKeyDown(event: KeyboardEvent, bookmark: IBookmark, index: number) {
         if (event.key === 'Enter') {
             event.preventDefault();
             const newTag = bookmark.tags[index].trim();
-            let updatedBookmark: IBookmarkDb | null = null;
+            let updatedBookmark: IBookmark | null = null;
 
             if (newTag !== '') {
                 updatedBookmark = await updateTag(bookmark, index, newTag);
