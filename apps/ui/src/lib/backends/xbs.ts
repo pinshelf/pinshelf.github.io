@@ -6,9 +6,12 @@ import { z } from 'zod'
 import { toValue } from 'ts-results-utils'
 import { hostnameFromUrl } from '$lib/utils/hostname'
 import type { XbsData } from 'xbs/src/data'
+import { PINSHELF_SETTINGS_TITLE, SettingsSchema, type Settings } from './settings'
 
 // Constants ///////////////////////////////////////////////////////////////////
-const CACHE_THRESHOLD = 2_000 // 2 seconds
+
+// In milliseconds !!!
+const CACHE_THRESHOLD = 5_000 // 2 seconds = 2_000
 
 // Builder /////////////////////////////////////////////////////////////////////
 export const XbsBackendBuilder: IBackendBuilder = {
@@ -173,6 +176,93 @@ export class XbsBackend implements IBackend {
                 hostname: hostnameFromUrl(item.url),
             }
         }}))
+    }
+
+
+    async getLastUpdated(): Promise<Result<number, string>> {
+        // Get data
+        const data = await this.xbs.getLastUpdated()
+        if (data.err) { return Err(data.val) }
+
+        // Extract iso string
+        const iso = data.val
+
+        // Convert iso string to unix timestamp (in milliseconds)
+        const unixTs = Date.parse(iso)
+
+        // Return
+        return Ok(unixTs)
+    }
+
+    async writeSettings(settings: Settings): Promise<Result<null, string>> {
+        // Get data
+        const data = await this.loadFromCacheOrApi(false)
+        if (data.err) { return Err(data.val) }
+
+        // Check if there are already settings
+        const existingSettingsBookmark = data.val
+            .findBookmarkByTitle(PINSHELF_SETTINGS_TITLE)
+
+        if (existingSettingsBookmark.some) {
+            const settingsBookmark = existingSettingsBookmark.val
+
+            // Update existing bookmark
+            settingsBookmark.description = Some(JSON.stringify(settings))
+
+        } else {
+            // Write initial settings bookmark to the "[xbs] Other" directory.
+            // First make sure that this directory exists.
+
+            // Find or create directory
+            const xbsOtherDir = data.val.findFolderByTitle('[xbs] Other')
+            let directory: Folder
+            if (xbsOtherDir.none) {
+                const newFolder = data.val
+                    .addFolder({ title: '[xbs] Other' }, data.val.root)
+
+                if (newFolder.err) { return Err(newFolder.val) }
+
+                directory = newFolder.val
+
+            } else {
+                directory = xbsOtherDir.val
+
+            }
+
+            // Create initial settings bookmark
+            data.val.addBookmark({
+                title: PINSHELF_SETTINGS_TITLE,
+                url: 'https://pinshelf.github.io',
+                tags: [],
+                description: JSON.stringify(settings)
+            }, directory)
+        }
+
+        // Upload changes
+        const upload = await this.xbs.put(data.val)
+
+        // Return
+        return upload
+    }
+
+    extractSettings(bookmarks: IBookmark[]): Result<Settings, string> {
+        // Try to find settings
+        const settingsBookmark = bookmarks
+            .find(b => b.title === PINSHELF_SETTINGS_TITLE)
+
+        if (!settingsBookmark) {
+            return Err('Settings not found in given bookmark data.')
+        }
+
+        // Extract and parse (xbs uses the 'description' field)
+        const settings = SettingsSchema
+            .safeParse(JSON.parse(settingsBookmark.description))
+        if (!settings.success) {
+            return Err(settings.error.toString())
+        }
+
+        // Return
+        return Ok(settings.data)
     }
 
     ////////////////////////////////////////////////////////////////////////////

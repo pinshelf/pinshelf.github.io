@@ -1,13 +1,12 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { cn } from '$lib/utils';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
     import type { IBookmarkDb } from '$lib/utils/db';
     import { bookmarksStore, loadData, updateBookmark } from '$lib/utils/dataService';
     import { addNewTag, deleteTag, updateTag } from '$lib/utils/tagUtils';
-    import backend from '$lib/state/backend.svelte';
     import { HfInference } from '@huggingface/inference';
     import { SettingsDialog } from '$lib/components/custom/settings-dialog';
+    import { bookmarks as globalBookmarks } from '$lib/state/data'
 
     let API_TOKEN = "";
 
@@ -18,7 +17,9 @@
         }
     });
 
-    let bookmarks = $state<IBookmarkDb[]>([]);
+    let bookmarks = $state<IBookmarkDb[]>([])
+    $effect(() => { bookmarks = globalBookmarks.all })
+
     let tags = $state<string[]>([]);
     let selectedBookmark = $state<number | null>(null);
     let recommendedBookmark = $state<IBookmarkDb | null>(null);
@@ -74,7 +75,7 @@
                 .filter((line: string) => /^(\d+\.|-)/.test(line))
                 .map((line: string) => line.replace(/^(\d+\.|-)\s*/, '').trim());
 
-            const newTags = generatedTags.filter(tag =>
+            const newTags = generatedTags.filter((tag: any) =>
                 !bookmark.tags.some(existingTag => existingTag.toLowerCase() === tag.toLowerCase())
             );
 
@@ -159,7 +160,7 @@
                     <h2 class="font-bold">Empfohlen</h2>
                     <SettingsDialog />
                 </div>
-                <button class="w-full text-left" on:click={() => openLink(recommendedBookmark.url)}>
+                <button class="w-full text-left" on:click={() => openLink(recommendedBookmark!.url)}>
                     <div class="flex w-full flex-col gap-1">
                         <div class="flex items-center">
                             <img 

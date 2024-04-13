@@ -3,6 +3,7 @@ import { ProfileSchema, type Profile } from '$lib/types';
 import localStorage from '$lib/utils/local-storage';
 import { z } from 'zod';
 import { Result, Ok, Err } from 'ts-results';
+import { homescreen } from '../data';
 
 // Constants ///////////////////////////////////////////////////////////////////
 const LS_KEY_PROFILES = 'profiles' as const;
@@ -11,7 +12,7 @@ const LS_KEY_ACTIVE_PROFILE = 'active-profiles' as const;
 // State Initialization ////////////////////////////////////////////////////////
 let profiles = $state<Profile[]>([]);
 let activeProfileName = $state<string | undefined>();
-let activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
+const activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
 
 
 // Load from local storage
@@ -39,6 +40,11 @@ let activeProfile = $derived(profiles.find(p => p.name === activeProfileName));
     } else {
         localStorage.write(LS_KEY_ACTIVE_PROFILE, { name: undefined })
     }
+
+    console.log(
+        'Profiles loaded from LocalStorage: ',
+        `amount = ${profiles.length}  |  active = "${activeProfileName}"`
+    )
 })();
 
 // Functions ///////////////////////////////////////////////////////////////////
@@ -156,6 +162,8 @@ function setActive(name: string) {
         activeProfileName = name
         localStorage.write(LS_KEY_ACTIVE_PROFILE, { name })
     }
+
+    console.log(`Profile changed: now active "${activeProfileName}`)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

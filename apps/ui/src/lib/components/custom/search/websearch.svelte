@@ -1,17 +1,21 @@
 <!-- Script ---------------------------------------------------------------- -->
 <script lang="ts">
     // Imports /////////////////////////////////////////////////////////////////
+    import {
+        ACTIVE_CLASS_DARK,
+        ACTIVE_CLASS_LIGHT,
+    } from '$lib/components/custom/search/keyboardNavigation';
+    import { createEventDispatcher } from 'svelte';
+    import { mode } from 'mode-watcher';
 
     // Props ///////////////////////////////////////////////////////////////////
-    import { ACTIVE_CLASS } from '$lib/components/custom/search/keyboardNavigation';
-    import { createEventDispatcher } from 'svelte';
-
     type Props = { searchString: string, searchUrl: string, active: boolean  };
     let { searchString, searchUrl, active }: Props = $props()
 
     // State ///////////////////////////////////////////////////////////////////
 
-    const activeClass = $derived(active ? ACTIVE_CLASS : '');
+    const activeClass = $mode === "dark" ? ACTIVE_CLASS_DARK : ACTIVE_CLASS_LIGHT
+    const classExtension = $derived(active ? activeClass : '');
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -35,16 +39,16 @@
             flex-row
             items-center
             space-x-1
-            ${activeClass}
+            ${classExtension}
         `}
-   href="{searchUrl}"
-   target="_blank"
+    href="{searchUrl}"
+    target="_blank"
 >
     <!-- Icon -->
     <div class="w-8 h-full flex flex-row items-start justify-center">
         <img
             class="w-5 h-5 rounded-sm mt-[3px]"
-            src="http://icon.horse/icon/duckduckgo.org"
+            src="https://icon.horse/icon/duckduckgo.org"
             alt="icon"
         />
     </div>

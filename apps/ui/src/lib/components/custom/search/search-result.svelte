@@ -4,15 +4,25 @@
     import type { IBookmark } from '$lib/backends';
     import { Archive } from 'radix-icons-svelte';
     import { createEventDispatcher } from 'svelte';
-    import { ACTIVE_CLASS } from '$lib/components/custom/search/keyboardNavigation';
+    import { mode } from 'mode-watcher';
+    import {
+        ACTIVE_CLASS_DARK,
+        ACTIVE_CLASS_LIGHT,
+    } from '$lib/components/custom/search/keyboardNavigation';
 
     // Props ///////////////////////////////////////////////////////////////////
-    type Props = { isFirst: boolean, bookmark: IBookmark, active: boolean };
-    const { isFirst, bookmark, active }: Props = $props();
+    type Props = {
+        isFirst?: boolean,
+        bookmark: IBookmark,
+        active  : boolean,
+        onClick?: () => void,
+    };
+    let { isFirst, bookmark, active, onClick }: Props = $props()
 
     // State ///////////////////////////////////////////////////////////////////
 
-    const activeClass = $derived(active ? ACTIVE_CLASS : '');
+    const activeClass = $mode === "dark" ? ACTIVE_CLASS_DARK : ACTIVE_CLASS_LIGHT
+    const classExtension = $derived(active ? activeClass : '');
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -27,9 +37,17 @@
     </div>
 {/if}
 
+
+<!-- Actual search entry -->
 <a
     on:mouseenter={() => dispatch('mouseenter')}
     on:mouseleave={() => dispatch('mouseleave')}
+    on:click={(event: Event) => {
+        if (onClick) {
+            event.preventDefault()
+            onClick()
+        }
+    }}
     class={`
             p-1.5
             my-2
@@ -39,7 +57,7 @@
             flex-row
             items-center
             space-x-1
-            ${activeClass}
+            ${classExtension}
         `}
     href="{bookmark.url}"
     target="_blank"
@@ -48,7 +66,7 @@
     <div class="w-8 h-full flex flex-row items-start justify-center">
         <img
             class="w-5 h-5 rounded-sm mt-[3px]"
-            src="http://icon.horse/icon/{bookmark.metadata.hostname}"
+            src="https://icon.horse/icon/{bookmark.metadata.hostname}"
             alt="icon"
         />
     </div>

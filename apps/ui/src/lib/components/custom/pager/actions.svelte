@@ -3,6 +3,7 @@
     import { Button } from '$lib/components/ui/button';
     import { Stack } from 'radix-icons-svelte'
     import * as Tooltip from '$lib/components/ui/tooltip';
+    import { dialogs } from '$lib/state/aux'
 
 
 </script>
@@ -13,6 +14,7 @@
         <Button
             builders={[builder]}
             variant="ghost" size="icon" class="h-8 w-8"
+            on:click={() => dialogs.managePages = true}
         >
             <Stack />
         </Button>

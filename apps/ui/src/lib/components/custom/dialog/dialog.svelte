@@ -4,9 +4,9 @@
     import { fade } from 'svelte/transition'
 
     // Props ///////////////////////////////////////////////////////////////////
-    type Props = { open: boolean, children: any };
+    type Props = { open: boolean, children: any, onOutsideClick?: () => void };
 
-    let { open = $bindable(), children }: Props = $props();
+    let { open = $bindable(), children, onOutsideClick }: Props = $props();
 
     ////////////////////////////////////////////////////////////////////////////
 </script>
@@ -26,12 +26,15 @@
             p-4
         "
 
-        on:click={() => open = false}
+        on:click={() => {
+            open = false;
+            if (onOutsideClick) { onOutsideClick() }
+        }}
     >
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
-            class="w-full max-w-[640px] max-h-full my-16"
+            class="w-full max-w-[640px] max-h-full "
             on:click={(e) => e.stopPropagation()}
         >
             {@render children()}

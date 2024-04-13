@@ -1,12 +1,13 @@
 import { db, type IBookmarkDb } from './db';
-import backend from '$lib/state/backend.svelte';
+// import backend from '$lib/state/backend.svelte';
+import { backend } from '$lib/state/config'
 import { liveQuery } from 'dexie';
 import { writable } from 'svelte/store';
 
 export const bookmarksStore = writable<IBookmarkDb[]>([]);
 
 export async function loadData() {
-    if (!backend.loading && backend.data.some) {
+    if (backend.data.some) {
         const backendData = backend.data.val;
         const existingData = await db.bookmarks.toArray();
 
@@ -27,7 +28,7 @@ export async function loadData() {
             bookmarksStore.set(existingData);
         }
     } else {
-        console.log("Backend wird noch geladen...");
+        console.log('Backend wird noch geladen...');
         bookmarksStore.set(await db.bookmarks.toArray());
     }
 }

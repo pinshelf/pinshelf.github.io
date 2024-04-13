@@ -1,9 +1,9 @@
 // Imports /////////////////////////////////////////////////////////////////////
-import ky from 'ky'
+import ky, { HTTPError } from 'ky'
 import { Result, Ok, Err } from 'ts-results'
 import { Report } from 'error-report'
 import { BASE_URL } from '.'
-import { IUserStats, SUserStats } from './schemas'
+import { type IUserStats, SUserStats } from './schemas'
 
 // API Request /////////////////////////////////////////////////////////////////
 /**
@@ -22,7 +22,10 @@ export async function getUserStats(
     ))
 
     if (res.err) {
-        return Err(Report.from(res.val).add(new GetUserStatsError()))
+        // Get response body
+        const rb = JSON.stringify(await (res.val as HTTPError).response.json())
+
+        return Err(Report.from(res.val).add(new GetUserStatsError(rb)))
     }
 
     // Get JSON response
@@ -45,7 +48,14 @@ export async function getUserStats(
 
 // Error ///////////////////////////////////////////////////////////////////////
 export class GetUserStatsError extends Error {
-    constructor() { super('failed to get user stats') }
+    constructor(e?: unknown) {
+        if (e) {
+            super(`failed to get user stats: ${e}`)
+
+        } else {
+            super('failed to get user stats')
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

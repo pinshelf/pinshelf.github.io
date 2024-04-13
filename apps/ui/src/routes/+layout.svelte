@@ -8,75 +8,47 @@
     import { Dialog } from '$lib/components/custom/dialog';
     import { ManageProfiles } from '$lib/components/custom/manage-profiles';
     import { SearchBar } from '$lib/components/custom/search'
+    import { ManagePages, EditApp, AddItemDialog, EditDivider } from '$lib/components/custom/homescreen'
     import { page } from '$app/stores';
 
+    // Service Worker Update ///////////////////////////////////////////////////
+    async function detectServiceWorkerUpdate() {
+        const registration = await navigator.serviceWorker.ready;
+        registration.addEventListener('updatefound', () => {
+            const newSw = registration.installing;
+            newSw?.addEventListener('statechange', async () => {
+                if (newSw.state === 'installed') {
+                    if (confirm('Update verfügbar. Bitte neu laden!')) {
+                        newSw.postMessage({ type: 'skipWaiting' });
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+    }
+
+    detectServiceWorkerUpdate();
+
     // Stores //////////////////////////////////////////////////////////////////
-    import profiles from '$lib/state/profiles.svelte';
-    import backend from '$lib/state/backend.svelte';
-    import { RaindropBackendBuilder, XbsBackendBuilder } from '$lib/backends';
+    import { profiles, backend } from '$lib/state/config';
+    import { dialogs } from '$lib/state/aux';
 
     // State ///////////////////////////////////////////////////////////////////
-    let pages = $state<{ name: string }[]>([
-        { name: "Personal" },
-        { name: "Finances" },
-    ])
-
-    let activePage = $state<string>("Personal")
-
-    let manageProfilesDialogOpen = $state(false)
 
     const currentRoute = $derived($page.url.pathname)
 
     // Mount ///////////////////////////////////////////////////////////////////
-    $effect(() => {
-        setBackend()
-    })
+    /**
+     * This effect is triggered whenever the `profiles` state changes, to then
+     * update the `backend` state to the correct backend used in the profile.
+     */
+    $effect(() => { backend.set() })
+
 
     // Functions ///////////////////////////////////////////////////////////////
     async function onProfileChange(profileName: string) {
         profiles.setActive(profileName)
-        await setBackend()
-    }
-
-    async function setBackend() {
-        backend.setLoading(true);
-        // Create backend for the selected profile
-        if (!profiles.active) {
-            console.log("cannot set backend because no profile is active")
-            backend.setLoading(false);
-            return
-        }
-        if (profiles.active!.backend === 'xbs') {
-            console.log("set backend xbs")
-
-            // Re-authenticate
-            const xbsBackend = await XbsBackendBuilder.auth(profiles.active!.credentials)
-            if (xbsBackend.err) {
-                console.log(`error: ${xbsBackend.val}`)
-                backend.setLoading(false);
-                return
-            } // TODO: error handling
-
-            // Write backend to store
-            backend.set(xbsBackend.val)
-
-        } else if (profiles.active!.backend === 'raindrop') {
-            console.log("set backend raindrop")
-
-            // Re-authenticate
-            const rdBackend = await RaindropBackendBuilder
-                .auth(profiles.active!.credentials)
-
-            if (rdBackend.err) {
-                console.log(`error: ${rdBackend.val}`)
-                backend.setLoading(false);
-                return
-            } // TODO: error handling
-
-            // Write backend to state
-            backend.set(rdBackend.val)
-        }
-        backend.setLoading(false);
+        backend.set()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -98,7 +70,7 @@
             profiles={profiles.all}
             activeProfile={profiles.active}
             onProfileChange={onProfileChange}
-            bind:manageProfilesDialogOpen={manageProfilesDialogOpen}
+            bind:manageProfilesDialogOpen={dialogs.manageProfiles}
         />
     {/snippet}
 
@@ -114,9 +86,20 @@
 </Toolbar.Root>
 
 <!-- Content -->
-<div class="pt-16">
-    <slot/>
+<div class="
+    fixed w-full h-dvh pt-10 pb-20 sm:pt-16 sm:pb-10
+    flex justify-center
+">
+    <!-- Content Wrapper -->
+    <div class="
+        w-full max-w-5xl h-full py-4 px-2
+        overflow-x-visible
+        overflow-y-auto
+    ">
+        <slot/>
+    </div>
 </div>
+
 
 <!-- Pager -->
 <Pager.Root>
@@ -125,25 +108,37 @@
     {/snippet}
 
     {#snippet middle()}
-        <Pager.Pagination
-            pages={!!profiles.active ? pages : []}
-            bind:activePage={activePage}
-        />
+        <Pager.Pagination/>
     {/snippet}
 
     {#snippet right()}
-        <Pager.Actions />
+        <Pager.Actions/>
     {/snippet}
 </Pager.Root>
 
 <!-- Dialogs -->
-<!-- Todo -->
-<Dialog bind:open={manageProfilesDialogOpen}>
+<Dialog bind:open={dialogs.manageProfiles}>
     <ManageProfiles
         profiles={profiles.all}
-        onClose={() => manageProfilesDialogOpen = false}
+        onClose={() => dialogs.manageProfiles = false}
     />
 </Dialog>
 
+<Dialog bind:open={dialogs.managePages}>
+    <ManagePages />
+</Dialog>
+
+<Dialog bind:open={dialogs.editApp}>
+    <EditApp />
+</Dialog>
+
+<Dialog bind:open={dialogs.editDivider}>
+    <EditDivider />
+</Dialog>
+
+
+<Dialog bind:open={dialogs.addItem}>
+    <AddItemDialog />
+</Dialog>
 
 <!-- ----------------------------------------------------------------------- -->

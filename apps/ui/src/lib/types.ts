@@ -1,3 +1,6 @@
+// Re-Exports //////////////////////////////////////////////////////////////////
+export * from '$lib/backends/settings/homescreen'
+
 // Imports /////////////////////////////////////////////////////////////////////
 import { z } from 'zod'
 
@@ -10,6 +13,7 @@ export const BACKENDS = ['xbs', 'raindrop'] as const;
 export type Backend = (typeof BACKENDS)[number];
 export const BackendSchema = z.enum(BACKENDS);
 
+
 /**
  * Profile
  */
@@ -20,5 +24,6 @@ export const ProfileSchema = z.object({
 });
 
 export type Profile = z.infer<typeof ProfileSchema>;
+
 
 ////////////////////////////////////////////////////////////////////////////////
