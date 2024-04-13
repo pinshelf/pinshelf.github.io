@@ -40,11 +40,6 @@
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "maskable"
-        },
-        {
-          "src": "/favicon_package_v0/mstile-150x150.png",
-          "sizes": "150x150",
-          "type": "image/png"
         }
     ]
   }
