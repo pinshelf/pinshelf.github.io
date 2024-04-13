@@ -17,7 +17,6 @@
     let title = $state<string>()
     let url = $state<string>()
     let iconUrl = $state<IconUrl>()
-    let dynamicBg = $state<string>('')
 
     $effect(() => {
         const { bookmarkId, overwrites } = app;
@@ -44,13 +43,6 @@
         }
         else {
             iconUrl = getIconUrl(url)
-
-            if (iconUrl.renderInfo.type === 'padded'
-                && iconUrl.renderInfo.background
-            ) {
-                const bg = iconUrl.renderInfo.background
-                dynamicBg = `bg-[${bg.light}] dark:bg-[${bg.dark}]`
-            }
         }
     })
 
@@ -79,8 +71,6 @@
             w-16 h-16
             rounded-2xl overflow-hidden
 
-
-
             border-[0.5px] border-zinc-300 dark:border-zinc-800
             shadow dark:shadow-zinc-950
         ">
@@ -93,13 +83,7 @@
                     />
 
                 {:else if iconUrl.renderInfo.type === 'padded'}
-                    <div class={(() => {
-                        let base = "w-full h-full p-2"
-                        if (dynamicBg) { base += ` ${dynamicBg}` }
-
-                        return base
-                    })()}
-                    >
+                    <div class="w-full h-full p-2 bg-zinc-100">
                         <img
                             src={iconUrl.url}
                             alt="icon"
