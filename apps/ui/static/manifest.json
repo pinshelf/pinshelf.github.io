@@ -36,15 +36,15 @@
           "type": "image/png"
         },
         {
-          "src": "/favicon_package_v0/mstile-150x150.png",
-          "sizes": "150x150",
-          "type": "image/png"
-        },
-        {
           "src": "/favicon_package_v0/android-chrome-512x512.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "maskable"
+        },
+        {
+          "src": "/favicon_package_v0/mstile-150x150.png",
+          "sizes": "150x150",
+          "type": "image/png"
         }
     ]
   }
