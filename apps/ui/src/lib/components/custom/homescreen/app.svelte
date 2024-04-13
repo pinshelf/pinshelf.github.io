@@ -50,8 +50,6 @@
             ) {
                 const bg = iconUrl.renderInfo.background
                 dynamicBg = `bg-[${bg.light}] dark:bg-[${bg.dark}]`
-
-                console.log(dynamicBg)
             }
         }
     })
