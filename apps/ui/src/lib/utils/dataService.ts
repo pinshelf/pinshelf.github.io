@@ -1,10 +1,10 @@
-import { db, type IBookmarkDb } from './db';
+import { db, type IBookmark } from './db';
 // import backend from '$lib/state/backend.svelte';
 import { backend } from '$lib/state/config'
 import { liveQuery } from 'dexie';
 import { writable } from 'svelte/store';
 
-export const bookmarksStore = writable<IBookmarkDb[]>([]);
+export const bookmarksStore = writable<IBookmark[]>([]);
 
 export async function loadData() {
     if (backend.data.some) {
@@ -33,7 +33,7 @@ export async function loadData() {
     }
 }
 
-function mergeBookmarks(existingBookmarks: IBookmarkDb[], backendBookmarks: IBookmarkDb[]): IBookmarkDb[] {
+function mergeBookmarks(existingBookmarks: IBookmark[], backendBookmarks: IBookmark[]): IBookmark[] {
     const mergedBookmarks = [...existingBookmarks];
 
     backendBookmarks.forEach(backendBookmark => {
@@ -73,7 +73,7 @@ export async function loadDataFromBackend() {
     }
 }
 
-export async function saveBookmark(bookmark: IBookmarkDb) {
+export async function saveBookmark(bookmark: IBookmark) {
     try {
         const id = await db.bookmarks.add(bookmark);
         console.log('Lesezeichen gespeichert:', { ...bookmark, id });
@@ -83,7 +83,7 @@ export async function saveBookmark(bookmark: IBookmarkDb) {
     }
 }
 
-export async function updateBookmark(id: number, changes: Partial<IBookmarkDb>) {
+export async function updateBookmark(id: number, changes: Partial<IBookmark>) {
     try {
         await db.bookmarks.update(id, changes);
         console.log(`Lesezeichen ${id} aktualisiert`);

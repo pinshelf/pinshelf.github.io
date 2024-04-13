@@ -277,7 +277,7 @@ sw.addEventListener('fetch', (event) => {
         }
 
         // Fallback (default): send out the request ////////////////////////////
-        console.log(`Fallback: executing request to "${url.pathname}"`)
+        // console.log(`Fallback: executing request to "${url.pathname}"`)
         return fetch(event.request)
     }
 
