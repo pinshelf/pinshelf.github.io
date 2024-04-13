@@ -10,15 +10,7 @@
 
     let API_TOKEN = "";
 
-    onMount(() => {
-        const storedToken = localStorage.getItem("huggingFaceToken");
-        if (storedToken) {
-            API_TOKEN = storedToken;
-        }
-    });
-
     let bookmarks = $state<IBookmark[]>([])
-    $effect(() => { bookmarks = globalBookmarks.all })
 
     let tags = $state<string[]>([]);
     let selectedBookmark = $state<number | null>(null);
@@ -143,9 +135,11 @@
 
     $effect(() => {
         loadData().then(() => {
-            bookmarks = $bookmarksStore;
+            bookmarks = $bookmarksStore
+                .filter(bookmark => bookmark.title !== "Pinshelf Settings")
+                .sort((a, b) => a.title.localeCompare(b.title));
             tags = [...new Set(bookmarks.flatMap(bookmark => bookmark.tags))];
-            recommendedBookmark = selectRandomBookmarkWithTopTag(); // Empfohlenes Bookmark setzen
+            recommendedBookmark = selectRandomBookmarkWithTopTag();
         });
     });
 </script>
