@@ -186,7 +186,20 @@ sw.addEventListener('fetch', (event) => {
         const imgCache = await caches.open(IMG_CACHE)
 
         // if (event.request.headers.get('Accept')?.includes('image/')) {
-        if (url.hostname === 'icon.horse') {
+        if (
+            (url.hostname === 'icon.horse')
+            ||
+            (
+                !(
+                    url.hostname === 'api.xbrowsersync.org' ||
+                    url.hostname === 'api.raindrop.io'
+                )
+                &&
+                event.request.destination === 'image'
+                // See mdn docs for reference:
+                // https://developer.mozilla.org/en-US/docs/Web/API/Request/destination
+            )
+        ) {
             const cachedResponse = await imgCache.match(event.request)
             if (cachedResponse) {
                 // Log cache hit
