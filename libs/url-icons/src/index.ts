@@ -345,6 +345,22 @@ const DB: Map<string, IconUrl> = new Map([
         }
     ],
 
+    // Sparkasse
+    [
+        'sparkasse.de',
+        {
+            url: 'https://play-lh.googleusercontent.com/xx3G2EbL8GjsrOtYSu7RFsjKxeqy-BD2-U41mdjUmLBhWWJiy08ZtECpTbJE--63sdQ',
+
+            attribution: {
+                source: 'https://play.google.com/store/apps/details?id=com.starfinanz.smob.android.sfinanzstatus&hl=de',
+            },
+
+            renderInfo: {
+                type: 'as-is'
+            }
+        }
+    ],
+
     // WBH (Wilhelm Büchner Hochschule)
     [
         'wb-fernstudium.de',
