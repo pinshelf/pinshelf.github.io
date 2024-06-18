@@ -420,11 +420,10 @@ const DB: Map<string, IconUrl> = new Map([
     [
         'tidal.com',
         {
-            url: 'https://assets.materialup.com/uploads/fea263d7-b857-46a6-832b-bab9c7608b8b/preview.jpg',
+            url: 'https://play-lh.googleusercontent.com/H6ssm-WM15CkGn8Md5y1t86i28Asdr7mBk2gWFnNBZhTTDPP86ZHXtHfDF1HUmd-rbU',
 
             attribution: {
-                source: 'https://www.uplabs.com/posts/tidal-ios-icon',
-                author: 'Matt Delac',
+                source: 'https://play.google.com/store/apps/dev?id=7232115040412978558&hl=de&gl=US'
             },
 
             renderInfo: {
